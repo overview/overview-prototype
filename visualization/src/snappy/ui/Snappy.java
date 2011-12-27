@@ -33,8 +33,8 @@ import snappy.graph.TopoTree;
 import org.lobobrowser.html.gui.*;
 import org.lobobrowser.html.test.*;
 
-//import chrriis.dj.nativeswing.swtimpl.NativeInterface;
-//import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser; 
+import chrriis.dj.nativeswing.swtimpl.NativeInterface;
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser; 
 
 public class Snappy extends JFrame implements ChangeListener {
 
@@ -624,7 +624,7 @@ public class Snappy extends JFrame implements ChangeListener {
 		// If we have a list of HTML files, create a panel to view them in
 		if( is_html_available ) {
 			
-			
+/*			
 			html_panel_holder = new JPanel();
 			html_panel_holder.setLayout(new BorderLayout(5, 5));
 			JLabel html_panel_title = new JLabel("Item Viewer");
@@ -637,17 +637,20 @@ public class Snappy extends JFrame implements ChangeListener {
 			renderContext = new SimpleHtmlRendererContext(html_panel, new SimpleUserAgentContext());
 			Logger.getLogger("").setLevel(Level.OFF);
 			html_panel.setHtml("<html></html>", "", renderContext);
-//			webBrowser = new JWebBrowser();
-//			webBrowser.setBarsVisible(false);
-//			webBrowser.setStatusBarVisible(false);
-//			webBrowser.setHTMLContent("<html>LOW LEVEL VIEWER</html>");
+*/
+			JWebBrowser browser = new JWebBrowser();
+			browser.setBarsVisible(false);
+			browser.setStatusBarVisible(false);
+			browser.navigate("http://www.google.com");
+			html_panel_holder = browser;
+		    
 			html_dispatch = new HtmlDispatch(	node_tree_control.item_jlist, 
 												html_prefix_name, 
 												HtmlDispatch.loadHTMLList(html_list_filename),html_panel,renderContext);			
 			node_tree_control.addKeyListener(html_dispatch);
 			
-			html_panel_holder.add(html_panel_title,"North");
-			html_panel_holder.add(html_panel,"Center");			
+//			html_panel_holder.add(html_panel_title,"North");
+//			html_panel_holder.add(html_panel,"Center");			
 		}
 		
 		// load URLs
@@ -745,7 +748,7 @@ public class Snappy extends JFrame implements ChangeListener {
 	
 	public static void main( final String[] args ) {
 		
-//		NativeInterface.open();  
+		NativeInterface.open();  
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
         	Snappy snappy = null;
             public void run() {
@@ -754,7 +757,7 @@ public class Snappy extends JFrame implements ChangeListener {
 //            	snappy.setSize(new Dimension(1024,700));
             }
         } );
-//        NativeInterface.runEventPump(); 
+        NativeInterface.runEventPump(); 
 	}
 
 	@Override

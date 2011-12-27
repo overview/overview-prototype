@@ -14,4 +14,16 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>DJNativeSwing-SWT.jar</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/lib/DJNativeSwing-SWT.jar</locationURI>
+		</link>
+		<link>
+			<name>DJNativeSwing.jar</name>
+			<type>1</type>
+			<location>/Users/jonathanstray/Documents/overview-proto/visualization/lib/DJNativeSwing.jar</location>
+		</link>
+	</linkedResources>
 </projectDescription>
