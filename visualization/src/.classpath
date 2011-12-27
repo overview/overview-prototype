@@ -5,8 +5,8 @@
 	<classpathentry kind="lib" path="lib/cobra.jar"/>
 	<classpathentry kind="lib" path="lib/core.jar"/>
 	<classpathentry kind="lib" path="lib/js.jar"/>
-	<classpathentry kind="lib" path="DJNativeSwing.jar"/>
 	<classpathentry kind="lib" path="DJNativeSwing-SWT.jar"/>
+	<classpathentry kind="lib" path="DJNativeSwing.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.swt"/>
 	<classpathentry kind="output" path=""/>
 </classpath>

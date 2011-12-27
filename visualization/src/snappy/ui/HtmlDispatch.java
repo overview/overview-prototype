@@ -19,13 +19,11 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-//import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 import snappy.data.SortedDistanceMatrix;
 import snappy.graph.TopoTreeNode;
 
-import org.lobobrowser.html.gui.*;
-import org.lobobrowser.html.test.SimpleHtmlRendererContext;
 
 /*
  * Receives double click events and responds to them by making a system call to open up the 
@@ -34,9 +32,7 @@ import org.lobobrowser.html.test.SimpleHtmlRendererContext;
 public class HtmlDispatch extends MouseAdapter implements KeyListener,
 		ListSelectionListener {
 
-	private HtmlPanel m_html_panel = null;
-	private SimpleHtmlRendererContext m_context = null;
-	// private JWebBrowser m_browser = null;
+    private JWebBrowser m_browser = null;
 	private JList m_list = null;
 	private Runtime m_runtime = null;
 	private String m_exec_prefix = "open";
@@ -51,23 +47,20 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 	 * @param item_urls
 	 *            The node number indexed list of URL strings
 	 */
-	public HtmlDispatch(JList list, String exec_prefix,
-			ArrayList<String> item_urls, HtmlPanel panel,
-			SimpleHtmlRendererContext context) {
+	public HtmlDispatch(JList list, 
+						ArrayList<String> item_urls, 
+						JWebBrowser browser) {
 
-		m_html_panel = panel;
-		m_context = context;
 
-		// m_browser = browser;
 		m_list = list;
 		m_list.addMouseListener(this);
 		m_list.addKeyListener(this);
 		m_list.addListSelectionListener(this);
-		m_runtime = Runtime.getRuntime();
-		if (m_exec_prefix != null)
-			m_exec_prefix = exec_prefix;
+		m_browser = browser;
 		m_item_urls = item_urls;
+		m_runtime = Runtime.getRuntime();
 	}
+
 
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -121,7 +114,7 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 		// }
 	}
 
-	public static ArrayList<String> loadHTMLList(String listname) {
+	public static ArrayList<String> loadURLList(String listname) {
 
 		ArrayList<String> returnList = new ArrayList<String>();
 
@@ -146,6 +139,7 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 
 		return returnList;
 	}
+	
 
 	public void keyTyped(KeyEvent e) {
 
@@ -161,22 +155,14 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 
 		if (e.getKeyCode() == 10) {
 
-			if (m_list.getSelectedIndex() != -1) {
+			String item_url = m_item_urls.get(((Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex())).intValue());
+			try {
 
-				String item_url = m_item_urls.get(((Integer) m_list.getModel()
-						.getElementAt(m_list.getSelectedIndex())).intValue());
-				try {
-
-					// open the url in the shell
-
-					System.out.println("Executing : " + m_exec_prefix
-							+ item_url + ".html ");
-					m_runtime.exec("open " + m_exec_prefix + item_url
-							+ ".html ");
-				} catch (IOException e1) {
-
-					e1.printStackTrace();
-				}
+				// open the url in the shell
+				System.out.println("Executing : open " + item_url);
+				m_runtime.exec("open " + item_url);
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		}
 	}
@@ -191,29 +177,7 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 			
 			Integer itemVal = (Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex());
     		String item_url = m_item_urls.get(itemVal.intValue());
-    		try {
-    		
-    			String line = "";
-    			BufferedReader r = new BufferedReader(new FileReader(m_exec_prefix + item_url + ".html"));
-    			line = r.readLine();
-    			String html_string = "";
-    			while( line != null ) {
-    				html_string += line;
-    				line = r.readLine();
-    			}
-    			m_html_panel.setHtml(html_string, "", m_context);
-//        			m_browser.setHTMLContent(html_string);
-
-    			r.close();
-//        			// open the url in the shell
-//        			
-//        			System.out.println("Executing : " + m_exec_prefix + item_url + ".html " );
-//					m_runtime.exec(m_exec_prefix + item_url + ".html ");
-			} catch (IOException e1) {
-
-				e1.printStackTrace();
-			}
-		}
-		
+    		m_browser.navigate(item_url);
+		}		
 	}
 }

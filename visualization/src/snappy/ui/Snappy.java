@@ -30,8 +30,8 @@ import snappy.graph.SimpleNodeLabeller;
 import snappy.graph.TagTable;
 import snappy.graph.TopoTree;
 
-import org.lobobrowser.html.gui.*;
-import org.lobobrowser.html.test.*;
+//import org.lobobrowser.html.gui.*;
+//import org.lobobrowser.html.test.*;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser; 
@@ -51,8 +51,6 @@ public class Snappy extends JFrame implements ChangeListener {
 	String df_data_filename 	 = "";
 	String point_label_filename  = "";
 	String nz_feature_label_filename = "";
-	String html_prefix_name = "";
-	String html_list_filename = "";
 	String url_list_filename = "";
 	String tag_filename = "";
 	
@@ -74,9 +72,9 @@ public class Snappy extends JFrame implements ChangeListener {
 //	GraphDrawer graph_drawer = null;
 	NodeTree node_tree_control = null;
 	HtmlDispatch html_dispatch = null;
-	HtmlPanel html_panel = null;
+//	HtmlPanel html_panel = null;
+//	SimpleHtmlRendererContext renderContext = null;
 	JPanel html_panel_holder = null;
-	SimpleHtmlRendererContext renderContext = null;
 	GlimmerLayout glimmer_layout = null;
 	GlimmerDrawer glimmer_drawer = null;
 	
@@ -87,7 +85,6 @@ public class Snappy extends JFrame implements ChangeListener {
 //	ArrayList<GraphLayout> graph_layouts = null;
 	
 	boolean is_sparse = false;				// controls if we're reading sparse or not
-	boolean is_html_available = false;		// do we have HTML files for each doc (and therefore an item viewer pane?)
 	boolean is_url_available = false;		// do we have URLs for each do (and can launch them on double-click)
 	
 	FeatureList point_feature_list = null;
@@ -115,7 +112,7 @@ public class Snappy extends JFrame implements ChangeListener {
             int myWidth  = ((width - insets.left) - insets.right);
             int myHeight = (height - insets.top) - insets.bottom;
             
-			if( ! is_html_available ) {
+			if( ! is_url_available ) {
 				int tag_width = 300;
 				int non_tt_width = tag_width + myHeight/2;
 				
@@ -320,21 +317,7 @@ public class Snappy extends JFrame implements ChangeListener {
 						startup_seconds = Long.parseLong(arg.substring(2));
 					}
 				}
-				else if( arg.charAt(1) == 'H' ) {
-					
-					inHTML = true; 	// we are using html lookups
-					is_html_available = true;
-					
-					if( arg.length() == 2 ) {
-						
-						inHTML = true;
-					}
-					else {
 
-						System.err.println("Error parsing HTML command line.");
-						System.exit(0);
-					}
-				}
 				else if( arg.charAt(1) == 'U' ) {
 					
 					inURL = true; 	// we are using html lookups
@@ -404,26 +387,11 @@ public class Snappy extends JFrame implements ChangeListener {
 				startup_seconds = Long.parseLong(arg);
 				inSEC = false;
 			}
-			
-			else if( inHTML ) {
-				
-				if( arg_num == 0) {				// first argument is the exec prefix
-					
-					html_prefix_name = arg;
-					arg_num++;
-				}
-				else if( arg_num == 1 ) {		// second argument is the list of html files
-					
-					html_list_filename = arg;
-					arg_num = 0;
-					inHTML = false;
-				}
-			}
-			
+						
 			else if( inURL ) {
 				
 				url_list_filename = arg;
-				inTAG = false;
+				inURL = false;
 			}	
 		}
 		
@@ -622,42 +590,21 @@ public class Snappy extends JFrame implements ChangeListener {
 		tag_control.m_node_tree = node_tree_control;
 		
 		// If we have a list of HTML files, create a panel to view them in
-		if( is_html_available ) {
-			
-/*			
-			html_panel_holder = new JPanel();
-			html_panel_holder.setLayout(new BorderLayout(5, 5));
-			JLabel html_panel_title = new JLabel("Item Viewer");
-			html_panel_title.setForeground(PrettyColors.DarkGrey);
-			html_panel_holder.setBackground(Color.white);
-			html_panel_holder.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, PrettyColors.Grey), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-				
-			html_panel = new HtmlPanel();
-			html_panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-			renderContext = new SimpleHtmlRendererContext(html_panel, new SimpleUserAgentContext());
-			Logger.getLogger("").setLevel(Level.OFF);
-			html_panel.setHtml("<html></html>", "", renderContext);
-*/
+		if( is_url_available ) {
+		
 			JWebBrowser browser = new JWebBrowser();
 			browser.setBarsVisible(false);
 			browser.setStatusBarVisible(false);
 			browser.navigate("http://www.google.com");
 			html_panel_holder = browser;
-		    
+	
 			html_dispatch = new HtmlDispatch(	node_tree_control.item_jlist, 
-												html_prefix_name, 
-												HtmlDispatch.loadHTMLList(html_list_filename),html_panel,renderContext);			
+												HtmlDispatch.loadURLList(url_list_filename),
+												browser);			
 			node_tree_control.addKeyListener(html_dispatch);
-			
-//			html_panel_holder.add(html_panel_title,"North");
-//			html_panel_holder.add(html_panel,"Center");			
 		}
 		
-		// load URLs
-		if( is_url_available ) {
-				// stuuufff
-		}		
-		
+
 //		graph_drawer = new GraphDrawer( node_labeller );
 		System.out.println("done.");
 		
@@ -725,7 +672,7 @@ public class Snappy extends JFrame implements ChangeListener {
 
 		snappyPanel.add(node_tree_control);
 		snappyPanel.add(tag_control);
-		if( is_html_available ) {
+		if( is_url_available ) {
 //			snappyPanel.add(webBrowser);
 			snappyPanel.add(html_panel_holder);
 		}
