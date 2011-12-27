@@ -29,7 +29,7 @@ import org.lobobrowser.html.test.SimpleHtmlRendererContext;
 
 /*
  * Receives double click events and responds to them by making a system call to open up the 
- * corresponding html file. 
+ * corresponding URL. 
  */
 public class HtmlDispatch extends MouseAdapter implements KeyListener,
 		ListSelectionListener {

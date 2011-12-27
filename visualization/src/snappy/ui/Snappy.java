@@ -52,7 +52,8 @@ public class Snappy extends JFrame implements ChangeListener {
 	String point_label_filename  = "";
 	String nz_feature_label_filename = "";
 	String html_prefix_name = "";
-	String html_listname = "";
+	String html_list_filename = "";
+	String url_list_filename = "";
 	String tag_filename = "";
 	
 	float[] current_histo = null;			// current state of the distance histogram
@@ -86,7 +87,8 @@ public class Snappy extends JFrame implements ChangeListener {
 //	ArrayList<GraphLayout> graph_layouts = null;
 	
 	boolean is_sparse = false;				// controls if we're reading sparse or not
-	boolean is_low_level_enabled = false;	// determines if we're dispatching low level viewers
+	boolean is_html_available = false;		// do we have HTML files for each doc (and therefore an item viewer pane?)
+	boolean is_url_available = false;		// do we have URLs for each do (and can launch them on double-click)
 	
 	FeatureList point_feature_list = null;
 	FeatureList edge_feature_list = null;
@@ -113,7 +115,7 @@ public class Snappy extends JFrame implements ChangeListener {
             int myWidth  = ((width - insets.left) - insets.right);
             int myHeight = (height - insets.top) - insets.bottom;
             
-			if( ! is_low_level_enabled ) {
+			if( ! is_html_available ) {
 				int tag_width = 300;
 				int non_tt_width = tag_width + myHeight/2;
 				
@@ -199,6 +201,7 @@ public class Snappy extends JFrame implements ChangeListener {
 		boolean inHTML  = false;    // 'H' next argument is for html url directory
 		boolean inTAG   = false;    // 'T' next argument is for tag file
 		boolean inSEC   = false;	// 'S' next argument is a long int for millis
+		boolean inURL	= false;	// 'S' next argument is file for URLs
 		
 		int arg_num = 0; 
 		
@@ -320,7 +323,7 @@ public class Snappy extends JFrame implements ChangeListener {
 				else if( arg.charAt(1) == 'H' ) {
 					
 					inHTML = true; 	// we are using html lookups
-					is_low_level_enabled = true;
+					is_html_available = true;
 					
 					if( arg.length() == 2 ) {
 						
@@ -329,6 +332,21 @@ public class Snappy extends JFrame implements ChangeListener {
 					else {
 
 						System.err.println("Error parsing HTML command line.");
+						System.exit(0);
+					}
+				}
+				else if( arg.charAt(1) == 'U' ) {
+					
+					inURL = true; 	// we are using html lookups
+					is_url_available = true;
+					
+					if( arg.length() == 2 ) {
+						
+						inURL = true;
+					}
+					else {
+
+						System.err.println("Error parsing URL command line.");
 						System.exit(0);
 					}
 				}
@@ -396,18 +414,24 @@ public class Snappy extends JFrame implements ChangeListener {
 				}
 				else if( arg_num == 1 ) {		// second argument is the list of html files
 					
-					html_listname = arg;
+					html_list_filename = arg;
 					arg_num = 0;
 					inHTML = false;
 				}
 			}
+			
+			else if( inURL ) {
+				
+				url_list_filename = arg;
+				inTAG = false;
+			}	
 		}
 		
 		// check if we never got an expected argument
 		
-		if( inNZ || inDM || inIND || inPF || inNZF || inHTML || inTAG || inSEC ) {
+		if( inNZ || inDM || inIND || inPF || inNZF || inHTML || inTAG || inSEC || inURL) {
 			
-			System.err.println("Error parsing input arguments.");
+			System.err.println("Missing argument(s) after option.");
 			System.exit(0);
 		}
 	}
@@ -597,9 +621,8 @@ public class Snappy extends JFrame implements ChangeListener {
 		
 		tag_control.m_node_tree = node_tree_control;
 		
-		// load html data
-		
-		if( is_low_level_enabled ) {
+		// If we have a list of HTML files, create a panel to view them in
+		if( is_html_available ) {
 			
 			
 			html_panel_holder = new JPanel();
@@ -620,12 +643,17 @@ public class Snappy extends JFrame implements ChangeListener {
 //			webBrowser.setHTMLContent("<html>LOW LEVEL VIEWER</html>");
 			html_dispatch = new HtmlDispatch(	node_tree_control.item_jlist, 
 												html_prefix_name, 
-												HtmlDispatch.loadHTMLList(html_listname),html_panel,renderContext);			
+												HtmlDispatch.loadHTMLList(html_list_filename),html_panel,renderContext);			
 			node_tree_control.addKeyListener(html_dispatch);
 			
 			html_panel_holder.add(html_panel_title,"North");
 			html_panel_holder.add(html_panel,"Center");			
 		}
+		
+		// load URLs
+		if( is_url_available ) {
+				// stuuufff
+		}		
 		
 //		graph_drawer = new GraphDrawer( node_labeller );
 		System.out.println("done.");
@@ -694,7 +722,7 @@ public class Snappy extends JFrame implements ChangeListener {
 
 		snappyPanel.add(node_tree_control);
 		snappyPanel.add(tag_control);
-		if( is_low_level_enabled ) {
+		if( is_html_available ) {
 //			snappyPanel.add(webBrowser);
 			snappyPanel.add(html_panel_holder);
 		}
