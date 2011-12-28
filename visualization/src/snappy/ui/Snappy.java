@@ -42,7 +42,7 @@ public class Snappy extends JFrame implements ChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -6484320090318536140L;
-	public static String VERSION_STRING = "0.1.6";	// updated after every commit
+	public static String VERSION_STRING = "0.1.7";	// updated after every commit
 	public static int DISTANCE_BINS 	= 25;		// how many bins between 0 ... 1
 	
 	int default_component_bin = 1;

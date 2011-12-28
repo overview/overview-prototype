@@ -1,6 +1,6 @@
 # Overview document set visualization system -- prototype 
 
-Welcome! This is prototype, pre-alpha distribution of the Overview Project open source document set visualization and exploration tool. For information on the project, including example uses, see overview.ap.org
+Welcome! This is a prototype, pre-alpha distribution of the Overview open source document set visualization and exploration tool. For information on the project, including example uses, see overview.ap.org
 
 The quick version:
 
