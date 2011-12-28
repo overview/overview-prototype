@@ -54,7 +54,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 	File m_chosenFile = null;
 	JLabel title_label = null;
 	TagList m_tagList = null;
-	NodeTree m_node_tree = null;
+	DocList m_node_tree = null;
 	
 	class TagIcon implements Icon {
 

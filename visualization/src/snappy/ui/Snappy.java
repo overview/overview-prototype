@@ -63,14 +63,14 @@ public class Snappy extends JFrame implements ChangeListener {
 	DistanceFunction distance_function = null;
 	NZData nz_data 					   = null;
 
-	JPanel tt_panel = null;
+	JPanel tree_panel = null;
 	JLabel tt_panel_title = null;
 	GraphManager graph_manager = null;		
 	TopoTree topo_tree		   = null;
 	TagTable tag_table 		   = null;
 	float initial_cutoff_value = 1.f;
 //	GraphDrawer graph_drawer = null;
-	NodeTree node_tree_control = null;
+	DocList doc_list_control = null;
 	HtmlDispatch html_dispatch = null;
 //	HtmlPanel html_panel = null;
 //	SimpleHtmlRendererContext renderContext = null;
@@ -116,7 +116,7 @@ public class Snappy extends JFrame implements ChangeListener {
 				int tag_width = 300;
 				int non_tt_width = tag_width + myHeight/2;
 				
-				tt_panel.setBounds(	insets.left, 
+				tree_panel.setBounds(	insets.left, 
 						insets.top, 
 						myWidth - non_tt_width, 
 						myHeight/2);
@@ -126,30 +126,18 @@ public class Snappy extends JFrame implements ChangeListener {
 						myHeight/2 );
 				glimmer_drawer.setBounds(insets.left + (myWidth - myHeight/2), insets.top,myHeight/2,myHeight/2 );
 				
-	            node_tree_control.setBounds(	insets.left, 
+	            doc_list_control.setBounds(	insets.left, 
 						insets.top + myHeight/2, 
 						myWidth, 
 						myHeight/2);
-//	            tt_control.setBounds(	insets.left, 
-//						insets.top + myHeight/2, 
-//						3*myWidth/4, 
-//						myHeight/2);
-//	            node_tree_control.setBounds(	insets.left, 
-//						insets.top, 
-//						myWidth, 
-//						myHeight/2);
-//				tag_control.setBounds( insets.left + 3*myWidth/4, 
-//						insets.top + myHeight/2, 
-//						myWidth/4, 
-//						myHeight/2 );
-//				glimmer_drawer.setBounds(insets.left + myWidth, insets.top,myWidth,myHeight );
+
 			}
 			else {
 				
 				int tag_width = 300;
 				int non_tt_width = tag_width + myHeight/2;
 				
-				tt_panel.setBounds(	insets.left, 
+				tree_panel.setBounds(	insets.left, 
 						insets.top, 
 						myWidth - non_tt_width, 
 						myHeight/2);
@@ -159,14 +147,15 @@ public class Snappy extends JFrame implements ChangeListener {
 						myHeight/2 );
 				glimmer_drawer.setBounds(insets.left + (myWidth - myHeight/2), insets.top,myHeight/2,myHeight/2 );
 				
-	            node_tree_control.setBounds(	insets.left, 
+				int doc_list_width = (int) (myWidth * 0.4);
+	            doc_list_control.setBounds(	insets.left, 
 						insets.top + myHeight/2, 
-						myWidth, 
-						myHeight/4);
-	            html_panel_holder.setBounds(	insets.left, 
-						insets.top + myHeight/4 + myHeight/2, 
-						myWidth, 
-						myHeight/4);				
+						doc_list_width, 
+						myHeight /2);
+	            html_panel_holder.setBounds( insets.left +  doc_list_width + 5, 
+						insets.top + myHeight/2, 
+						myWidth - doc_list_width, 
+						myHeight/2);				
 //	            tt_control.setBounds(	insets.left, 
 //						insets.top + myHeight/2, 
 //						3*myWidth/4, 
@@ -566,28 +555,28 @@ public class Snappy extends JFrame implements ChangeListener {
 		if( edge_feature_list!= null ) {
 			node_labeller = new EdgeIntersectionLabeller(graph_manager, edge_feature_list, nz_data);
 		}
-		node_tree_control = new NodeTree( node_labeller, tag_table );
+		doc_list_control = new DocList( node_labeller, tag_table );
 		glimmer_drawer = new GlimmerDrawer(glimmer_layout, topo_tree, tag_table);
 
 		
-		tt_control.addTagChangeListener(node_tree_control);
+		tt_control.addTagChangeListener(doc_list_control);
 		tt_control.addTagChangeListener(tag_control);
 		tt_control.addTagChangeListener(glimmer_drawer);
 		
-		node_tree_control.addChangeListener(tt_control);
+		doc_list_control.addChangeListener(tt_control);
 
-		node_tree_control.addTagChangeListener(glimmer_drawer);
-		node_tree_control.addTagChangeListener(tt_control);
-		node_tree_control.addTagChangeListener(tag_control);
+		doc_list_control.addTagChangeListener(glimmer_drawer);
+		doc_list_control.addTagChangeListener(tt_control);
+		doc_list_control.addTagChangeListener(tag_control);
 
-		glimmer_drawer.addTagChangeListener(node_tree_control);
+		glimmer_drawer.addTagChangeListener(doc_list_control);
 		glimmer_drawer.addTagChangeListener(tt_control);
 		glimmer_drawer.addTagChangeListener(tag_control);
 		
 		tt_control.node_labeller = node_labeller;
 		glimmer_drawer.node_labeller = node_labeller;
 		
-		tag_control.m_node_tree = node_tree_control;
+		tag_control.m_node_tree = doc_list_control;
 		
 		// If we have a list of HTML files, create a panel to view them in
 		if( is_url_available ) {
@@ -598,10 +587,10 @@ public class Snappy extends JFrame implements ChangeListener {
 			browser.navigate("http://www.google.com");
 			html_panel_holder = browser;
 	
-			html_dispatch = new HtmlDispatch(	node_tree_control.item_jlist, 
+			html_dispatch = new HtmlDispatch(	doc_list_control.item_jlist, 
 												HtmlDispatch.loadURLList(url_list_filename),
 												browser);			
-			node_tree_control.addKeyListener(html_dispatch);
+			doc_list_control.addKeyListener(html_dispatch);
 		}
 		
 
@@ -620,7 +609,7 @@ public class Snappy extends JFrame implements ChangeListener {
 		SnappyPanel snappyPanel = new SnappyPanel();
 		snappyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
-		tt_panel = new JPanel() {
+		tree_panel = new JPanel() {
 			
 			/**
 			 * 
@@ -648,12 +637,12 @@ public class Snappy extends JFrame implements ChangeListener {
 		};
 		tt_panel_title = new JLabel("Disconnected Component Tree");
 		tt_panel_title.setForeground(PrettyColors.DarkGrey);
-		tt_panel.setBackground(Color.white);
-		tt_panel.add(tt_panel_title);
-		tt_panel.add(tt_control);
-		tt_panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, PrettyColors.Grey),BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		tree_panel.setBackground(Color.white);
+		tree_panel.add(tt_panel_title);
+		tree_panel.add(tt_control);
+		tree_panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, PrettyColors.Grey),BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		
-		snappyPanel.add( tt_panel );
+		snappyPanel.add( tree_panel );
 		snappyPanel.add( glimmer_drawer );
 //		snappyPanel.setPreferredSize(new Dimension(1024,700));
 		
@@ -670,7 +659,7 @@ public class Snappy extends JFrame implements ChangeListener {
 //			}} );
 //		this.getContentPane().add( scroll_pane2, "Center" );
 
-		snappyPanel.add(node_tree_control);
+		snappyPanel.add(doc_list_control);
 		snappyPanel.add(tag_control);
 		if( is_url_available ) {
 //			snappyPanel.add(webBrowser);
