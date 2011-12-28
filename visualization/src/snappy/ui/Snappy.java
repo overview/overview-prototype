@@ -395,7 +395,7 @@ public class Snappy extends JFrame implements ChangeListener {
 	
 	public Snappy( String[] args ) {
 		
-		super("MoDiscoTag");
+		super("Overview prototype");
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
