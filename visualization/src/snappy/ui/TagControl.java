@@ -453,7 +453,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 			}
 		}
 	}
-	
+/*	
 	public static void main( String[] args ) {
 		
 		// construct a Jframe
@@ -525,7 +525,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
         		
         		System.out.println("Created test tree");
         		
-        		TagTable test_table = new TagTable(test_tree);
+        		TagTable test_table = new TagTable(test_tree, null);
         		test_table.newTag("TEST1");
         		
         		TagControl tagC = new TagControl(test_table);
@@ -539,4 +539,5 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
             }
         } );
 	}
+*/
 }

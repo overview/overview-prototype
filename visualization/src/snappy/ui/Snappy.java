@@ -484,7 +484,7 @@ public class Snappy extends JFrame implements ChangeListener {
 		topo_tree = new TopoTree(graph_manager, mylevels);
 		System.out.println("done.");
 		graph_manager.setCutoff(1.f);
-		tag_table = new TagTable(topo_tree);
+		tag_table = new TagTable(topo_tree, nz_data);
 		
 		// load up the tag file here
 

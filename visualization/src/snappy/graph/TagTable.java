@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import snappy.ui.PrettyColors;
+import snappy.data.NZData;
 
 public class TagTable {
 
@@ -38,6 +39,7 @@ public class TagTable {
 	}
 	
 	TopoTree m_tree = null;									// tree containing all the nodes
+	NZData m_doclist = null;								// used to convert doc indices to unique IDs, for reading/writing
 
 	public class Tag {
 		
@@ -60,9 +62,9 @@ public class TagTable {
 			for( Integer item : items ) {
 				
 				if( k < items.size()-1 )
-					str += (item+",");
+					str += (m_doclist.getDocIDString(item)+",");
 				else
-					str += item;
+					str += m_doclist.getDocIDString(item);
 					
 				k++;
 			}
@@ -89,7 +91,12 @@ public class TagTable {
 				ArrayList<Integer> item_input = new ArrayList<Integer>();
 				for( String itemstr : itemnum_fields ) {
 	
-					item_input.add( Integer.parseInt(itemstr));
+					Integer item_idx = m_doclist.getDocIndexFromIDString(itemstr.trim());
+					if (item_idx != -1) {
+						item_input.add( item_idx);
+					} else {
+						System.out.println("Unknown document ID in tag file: " + itemstr);
+					}
 				}
 				
 				addItem(item_input);
@@ -361,7 +368,7 @@ public class TagTable {
 		}		
 	}
 	
-	public TagTable(TopoTree tree) {
+	public TagTable(TopoTree tree, NZData nzData) {
 
 		// create lists
 		
@@ -371,6 +378,7 @@ public class TagTable {
 		tag_order_added = new ArrayList<TagTable.Tag>();
 		
 		m_tree = tree;
+		m_doclist = nzData;
 		
 		newTag("ITEM");
 		topTag().is_item= true;
@@ -586,7 +594,7 @@ public class TagTable {
 		
 		return tq;
 	}
-	
+/*	
 	public static void main( String[] args ) {
 		
 		// create test tree
@@ -712,4 +720,5 @@ public class TagTable {
 			System.out.println(""+tag);		
 		}
 	}
+*/
 }

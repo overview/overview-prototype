@@ -104,7 +104,7 @@ public class NZData {
 	int pointCount  = 0;
 	
 	public ArrayList<ArrayList<NZEntry>> nzEntryDataUnordered = null;
-	public ArrayList<DocID> nzDocIDs = null;
+	public ArrayList<String> nzDocIDs = null;
 	ArrayList<TreeSet<NZEntry>> nzEntryData = null;
 	HashMap<Integer,ArrayList<NZTransposeEntry>> nzEntryTransposeData = null;
 	ArrayList<HashMap<Integer,Boolean>> edgeChecker = null;
@@ -136,7 +136,7 @@ public class NZData {
 	public NZData( ) {
 		
 		nzEntryDataUnordered    = new ArrayList<ArrayList<NZEntry>>();
-		nzDocIDs 		= new ArrayList<DocID>();
+		nzDocIDs 		= new ArrayList<String>();
 		nzEntryTransposeData 	= new HashMap<Integer,ArrayList<NZTransposeEntry>>();
 		nzEntryData 	= new ArrayList<TreeSet<NZEntry>>();
 		pointCount 		= nzEntryData.size();
@@ -192,7 +192,7 @@ public class NZData {
 		ArrayList<NZEntry> pointDataUnordered = new ArrayList<NZEntry>();
 		
 		String[] entries = nzDataString.split("\\s+");
-		DocID docID = new DocID(entries[0]);				// first token is doc ID string 
+		String docID = entries[0];							// first token is doc ID string 
 		for (int i=1; i<entries.length; i++) {				// start at 1, skip first entry since it was the doc ID
 			
 			String entry = entries[i];
@@ -207,7 +207,7 @@ public class NZData {
 		nzEntryDataUnordered.add(pointDataUnordered);
 		pointCount = nzEntryDataUnordered.size();
 		nzDocIDs.add(docID);
-		System.out.println("Read doc ID:" + docID.toString());
+		//System.out.println("Read doc ID:" + docID.toString());
 		
 		// update the sparse transpose structure
 		
@@ -232,6 +232,14 @@ public class NZData {
 	}
 	public void setPointCount(int pointCount) {
 		this.pointCount = pointCount;
+	}
+	
+	public String getDocIDString(int idx) {
+		return nzDocIDs.get(idx);
+	}
+	
+	public int getDocIndexFromIDString(String docID) {
+		return nzDocIDs.indexOf(docID);
 	}
 	
 	public String toString() {
