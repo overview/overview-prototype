@@ -10,8 +10,10 @@ require 'csv'
 # vector is a hash of term ID -> tfidf pairs, these need to be sorted, normalized, and formatted to file
 @docs_written = 0
 
-def write_doc(vector, file)
+def write_doc(id, vector, file)
   if vector.length > 0        # this check is important for handling several boundary cases (like first call in loop below)
+    file << id.to_s + " "     # start by writing ID
+    
     # compute vector length
     length = Math.sqrt(vector.inject(0) { | sumsq, (term_id,tf_idf) | sumsq += tf_idf*tf_idf })
 
@@ -64,7 +66,7 @@ CSV.foreach(infile_name, :headers=>true) do |row|
     
     # write previous document out
     if last_doc_id != nil
-      write_doc(cur_doc_vector,vec_outfile)
+      write_doc(last_doc_id, cur_doc_vector,vec_outfile)
     end
     cur_doc_vector.clear
 
@@ -93,7 +95,7 @@ CSV.foreach(infile_name, :headers=>true) do |row|
 end
 
 # Write final files
-write_doc(cur_doc_vector, vec_outfile)
+write_doc(last_doc_id, cur_doc_vector, vec_outfile)
 write_termlist_file(term_to_id, termlist_outfile)
 
 puts(docs_encountered.to_s + " documents encountered");

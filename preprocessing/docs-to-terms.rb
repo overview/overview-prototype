@@ -42,8 +42,8 @@ csv_out = CSV.open(ARGV[1],"w")
 CSV.foreach(ARGV[0], :headers=>true) do |row|
   
   text = row['text']
-  if row.include?('id')
-    uid = row['id']
+  if row.include?('uid')
+    uid = row['uid']
   else
     uid = docs_read.to_s
   end
