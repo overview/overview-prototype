@@ -273,13 +273,13 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 			this.setBackground(Color.white);
 			this.setBorder(BorderFactory.createLineBorder(PrettyColors.DarkGrey));
 
-			nav_item = new TagListItem( ttable.topTag() == ttable.getSelTag(), ttable.getSelTag() );
+			nav_item = new TagListItem( ttable.topTag() == ttable.getSelectedTag(), ttable.getListedTag() );
 //			hi_item = new TagListItem( ttable.topTag() == ttable.getItemTag(), ttable.getItemTag() );
 			other_tags = new ArrayList<TagControl.TagListItem>();
 			for( int i =0; i < ttable.tag_order_added.size(); i++ ) {
 
 				Tag t = ttable.tag_order_added.get(i);
-				if( ! t.is_item && ! t.is_select ) {
+				if( ! t.is_listed && ! t.is_selected ) {
 					
 					other_tags.add( new TagListItem(ttable.topTag() == t, t) );
 				}
@@ -364,7 +364,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				public void actionPerformed(ActionEvent e) {
 
 					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
-					m_ttable.addFromActiveSet(m_t, m_node_tree.getActiveSet());
+					m_ttable.addFromActiveSet(m_t, m_node_tree.getSelectedItems());
 				}
 			});
 			take_from_button.addActionListener( new ActionListener() {
@@ -373,7 +373,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				public void actionPerformed(ActionEvent e) {
 
 					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
-					m_ttable.remFromActiveSet(m_t, m_node_tree.getActiveSet());
+					m_ttable.remFromActiveSet(m_t, m_node_tree.getSelectedItems());
 				}
 			});
 			kill_button.addActionListener( new ActionListener() {
@@ -393,8 +393,13 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 
+					System.out.println("TAG CLICK");
 					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
-					m_ttable.promoteTag(m_t);
+					
+					// When a tag is clicked, copy its contents into the listed tag
+					m_ttable.getListedTag().setItems(new ArrayList<Integer>(m_t.items));
+					m_ttable.promoteTagSilent(m_t);
+					m_ttable.promoteTag(m_ttable.getListedTag());
 				}
 			});
 			if( isTop ) {
@@ -409,7 +414,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				nombre_label.setForeground(Color.black);
 			}
 			
-			if( ! ( t.is_item || t.is_select ) ) {
+			if( ! ( t.is_listed || t.is_selected ) ) {
 				
 				this.add(kill_button);
 				this.add(add_to_button);
@@ -445,7 +450,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 			
 			// layout buttons
 			
-			if( ! ( m_t.is_item || m_t.is_select ) ) {
+			if( ! ( m_t.is_listed || m_t.is_selected ) ) {
 				
 				add_to_button.setBounds( label_width,0, max_button_width, button_height ); 
 				take_from_button.setBounds( label_width + button_spacer + max_button_width,0, max_button_width, button_height ); 

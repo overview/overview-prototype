@@ -107,7 +107,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 			
 			// add the new node to the selection
 			
-			m_ttable.promoteTagSilent( m_ttable.getSelTag() );
+			m_ttable.promoteTagSilent( m_ttable.getListedTag() );
 
 			while( m_ttable.topTag().full_components.size() > 0 ) {
 
@@ -140,7 +140,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 			hilightedNode = null;
 			
 			// 
-			m_ttable.promoteTagSilent( m_ttable.getSelTag() );
+			m_ttable.promoteTagSilent( m_ttable.getListedTag() );
 			while( m_ttable.topTag().full_components.size() > 0 ) {
 
 				TopoTreeNode n = null;
@@ -515,7 +515,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 				stroke(	t.tag_color.getRed(),
 						t.tag_color.getGreen(),
 						t.tag_color.getBlue());
-				if( t == m_ttable.topTag() || t == m_ttable.topNonitemTag() ) {
+				if( t == m_ttable.topTag() || t == m_ttable.topNonListedTag() ) {
 					strokeWeight(3.f);
 				}
 				else {
@@ -531,7 +531,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 					stroke(	t.tag_color.getRed(),
 							t.tag_color.getGreen(),
 							t.tag_color.getBlue());
-					if( t == m_ttable.topTag() || t == m_ttable.topNonitemTag() ) {
+					if( t == m_ttable.topTag() || t == m_ttable.topNonListedTag() ) {
 						strokeWeight(3.f);
 					}
 					else {
@@ -610,7 +610,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 				noStroke();
 
 			int node_size = DEF_NODE_SIZE;
-			if (node.hilighted || (draw_full && (t==m_ttable.topTag()|| t == m_ttable.topNonitemTag()))) {
+			if (node.hilighted || (draw_full && (t==m_ttable.topTag()|| t == m_ttable.topNonListedTag()))) {
 				node_size = 3*DEF_NODE_SIZE;
 			}
 			if( t != null && !draw_full )
@@ -651,7 +651,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 				stroke(	t.tag_color.getRed(),
 						t.tag_color.getGreen(),
 						t.tag_color.getBlue());
-				if( t == m_ttable.topTag() || t == m_ttable.topNonitemTag()) {
+				if( t == m_ttable.topTag() || t == m_ttable.topNonListedTag()) {
 					strokeWeight(6.f);
 				}
 				else {
@@ -665,7 +665,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 					stroke(	t.tag_color.getRed(),
 							t.tag_color.getGreen(),
 							t.tag_color.getBlue());
-					if( t == m_ttable.topTag() || t == m_ttable.topNonitemTag() ) {
+					if( t == m_ttable.topTag() || t == m_ttable.topNonListedTag() ) {
 						strokeWeight(6.f);
 					}
 					else {

@@ -51,8 +51,8 @@ public class TagTable {
 		public Color tag_color = null;
 		public String name = null;
 		
-		public boolean is_select = false;
-		public boolean is_item = false;
+		public boolean is_listed = false;					// two special tags: listed (appears in doc list, red in tree/scatterplot)
+		public boolean is_selected = false;					// and selected (black color in doc list and tree/scatterplot)
 		
 		public String to_file( ) {
 
@@ -183,6 +183,13 @@ public class TagTable {
 			}
 		}
 
+		public void setItems( ArrayList<Integer> add_items ) {
+			items.clear();
+			full_components.clear();
+			part_components.clear();
+			addItem(add_items);
+		}
+		
 		private void removeSubtreeFromAll( TopoTreeNode node  ) {
 
 			if( part_components.contains(node) ) {
@@ -350,10 +357,8 @@ public class TagTable {
 			tag_queue.add(0,tag);
 		}
 		
-		// notify tag listeners to redraw
-		
+		// notify tag listeners to redraw (but selection did not change here)
 		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-			
 			tagChangeListener.tagsChanged();
 		}		
 	}
@@ -380,32 +385,32 @@ public class TagTable {
 		m_tree = tree;
 		m_doclist = nzData;
 		
-		newTag("ITEM");
-		topTag().is_item= true;
-		topTag().tag_color = Color.black;
-		newTag("Selected Nodes");
-		promoteTag(tag_queue.get(tag_queue.size()-1));
-		topTag().is_select = true;
+		newTag("Listed");
+		topTag().is_listed= true;
 		topTag().tag_color = PrettyColors.Red;
+		newTag("Selected");
+		promoteTag(tag_queue.get(tag_queue.size()-1));
+		topTag().is_selected = true;
+		topTag().tag_color = Color.black;
 		
 	}
 	
-	public Tag getSelTag() {
+	public Tag getSelectedTag() {
 		
 		for( Tag t : tag_queue ) {
 			
-			if( t.is_select )
+			if( t.is_selected )
 				return t;
 		}
 		
 		return null;
 	}
 	
-	public Tag getItemTag() {
+	public Tag getListedTag() {
 		
 		for( Tag t : tag_queue ) {
 			
-			if( t.is_item )
+			if( t.is_listed )
 				return t;
 		}
 		
@@ -506,7 +511,7 @@ public class TagTable {
 			BufferedWriter bw = new BufferedWriter(fw);
 			for( Tag tag : tag_queue ) {
 
-				if( ! tag.is_select && ! tag.is_item )
+				if( ! tag.is_listed && ! tag.is_selected )
 					bw.write( tag.to_file() + "\n" );
 			}
 			bw.close();
@@ -526,11 +531,11 @@ public class TagTable {
 		return null;
 	}
 	
-	public Tag topNonitemTag() {
+	public Tag topNonListedTag() {
 		
 		if( tag_queue.size() > 0 ) {
 			
-			return tag_queue.get(0).is_item ? (tag_queue.size()>1?tag_queue.get(1):null) : tag_queue.get(0); 
+			return tag_queue.get(0).is_listed ? (tag_queue.size()>1?tag_queue.get(1):null) : tag_queue.get(0); 
 		}
 		
 		return null;

@@ -373,29 +373,9 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 					}
 				}
 				
-				// update the item tag
-				
-				if(bounded_items.size() > 0) {
-					
-					m_tag_table.getItemTag().removeItem( new ArrayList<Integer>(m_tag_table.getItemTag().items) );
-					m_tag_table.getItemTag().addItem( bounded_items );
-					m_tag_table.promoteTagSilent(m_tag_table.getItemTag());
-
-					for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-						
-						tagChangeListener.tagsChanged();
-					}		
-				}
-				else {
-					
-					m_tag_table.getItemTag().removeItem( new ArrayList<Integer>(m_tag_table.getItemTag().items) );
-					m_tag_table.promoteTagSilent(m_tag_table.getItemTag());
-
-					for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-						
-						tagChangeListener.tagsChanged();
-					}		
-				}
+				// update the listed items
+				m_tag_table.getListedTag().setItems(bounded_items);				
+				m_tag_table.promoteTag(m_tag_table.getListedTag());
 				
 				redraw();
 			}
@@ -485,29 +465,19 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				
 				// update the item tag
 				
-				if(min_idx > -1) {
-					
-					m_tag_table.getItemTag().removeItem( new ArrayList<Integer>(m_tag_table.getItemTag().items) );
+				m_tag_table.getListedTag().removeItem( new ArrayList<Integer>(m_tag_table.getListedTag().items) );
+
+				if(min_idx > -1) {	
 					ArrayList<Integer> itemToAdd = new ArrayList<Integer>();
 					itemToAdd.add( min_idx );
-					m_tag_table.getItemTag().addItem( itemToAdd );
-					m_tag_table.promoteTagSilent(m_tag_table.getItemTag());
-
-					for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-						
-						tagChangeListener.tagsChanged();
-					}		
+					m_tag_table.getListedTag().addItem( itemToAdd );
 				}
-				else {
-					
-					m_tag_table.getItemTag().removeItem( new ArrayList<Integer>(m_tag_table.getItemTag().items) );
-					m_tag_table.promoteTagSilent(m_tag_table.getItemTag());
+				
+				m_tag_table.promoteTagSilent(m_tag_table.getListedTag());
 
-					for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-						
-						tagChangeListener.tagsChanged();
-					}		
-				}
+				for( TagChangeListener tagChangeListener : tagChangeListeners ) {
+					tagChangeListener.tagsChanged();
+				}		
 				
 				redraw();
 			}
@@ -583,7 +553,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				Tag tag = m_tag_table.tag_queue.get(i);
 				Color c = tag.tag_color;
 				fill(c);
-				int rad_multiplier = (tag == m_tag_table.topTag() || tag == m_tag_table.topNonitemTag()) ? 3 : 1;
+				int rad_multiplier = (tag == m_tag_table.topTag() || tag == m_tag_table.topNonListedTag()) ? 3 : 1;
 				for( int item : tag.items) {
 					
 					ellipse(
