@@ -184,10 +184,14 @@ public class TagTable {
 		}
 
 		public void setItems( ArrayList<Integer> add_items ) {
+			clear();
+			addItem(add_items);
+		}
+		
+		public void clear() {
 			items.clear();
 			full_components.clear();
-			part_components.clear();
-			addItem(add_items);
+			part_components.clear();		
 		}
 		
 		private void removeSubtreeFromAll( TopoTreeNode node  ) {
@@ -348,26 +352,24 @@ public class TagTable {
 	ArrayList<TagChangeListener> tagChangeListeners = null; 
 	String m_tagFilename = null;							// tag filename to which we save the tag info
 
+	// Move given tag to top of queue
 	public void promoteTag( Tag tag ) {
 		
 		int current_idx = tag_queue.indexOf( tag );
 		if( current_idx > 0 ) {
-			
 			tag_queue.remove(current_idx);
 			tag_queue.add(0,tag);
 		}
 		
 		// notify tag listeners to redraw (but selection did not change here)
-		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-			tagChangeListener.tagsChanged();
-		}		
+		notifyListenersTagsChanged();
 	}
 	
+	// Move tag without notifying listeners that anything changed
 	public void promoteTagSilent( Tag tag ) {
 		
 		int current_idx = tag_queue.indexOf( tag );
 		if( current_idx > 0 ) {
-			
 			tag_queue.remove(current_idx);
 			tag_queue.add(0,tag);
 		}		
@@ -418,8 +420,14 @@ public class TagTable {
 	}
 	
 	public void addTagChangeListener( TagChangeListener listener ) {
-		
 		tagChangeListeners.add( listener );
+	}
+
+	// Call this to send a message to all listerners 
+	void notifyListenersTagsChanged() {
+		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
+			tagChangeListener.tagsChanged();
+		}			
 	}
 	
 	public void killTag( Tag tag ) {
@@ -428,11 +436,7 @@ public class TagTable {
 		tag_order_added.remove(tag);
 		
 		// notify tag listeners to redraw
-		
-		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-			
-			tagChangeListener.tagsChanged();
-		}		
+		notifyListenersTagsChanged();
 	}
 	
 	public void newTag( String tagName ) {
@@ -442,11 +446,7 @@ public class TagTable {
 		tag_order_added.add(tag);
 		
 		// notify tag listeners to redraw
-		
-		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-			
-			tagChangeListener.tagsChanged();
-		}
+		notifyListenersTagsChanged();
 	}
 	
 	/*
@@ -555,20 +555,14 @@ public class TagTable {
 		return null;
 	}
 	
-	public void addFromActiveSet( Tag t, ArrayList<Integer> active_set ) {
-
-		t.addItem(active_set);
-		promoteTag(t);
+	public void addItems( Tag t, ArrayList<Integer> items ) {
+		t.addItem(items);
 	}
 	
-	public void remFromActiveSet( Tag t, ArrayList<Integer> active_set ) {
-
-		t.removeItem(active_set);
-		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-			
-			tagChangeListener.tagsChanged();
-		}
+	public void removeItems( Tag t, ArrayList<Integer> items ) {
+		t.removeItem(items);
 	}
+	
 	
 	public TagQuery queryNode( TopoTreeNode node ) {
 		

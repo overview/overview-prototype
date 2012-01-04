@@ -553,7 +553,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				Tag tag = m_tag_table.tag_queue.get(i);
 				Color c = tag.tag_color;
 				fill(c);
-				int rad_multiplier = (tag == m_tag_table.topTag() || tag == m_tag_table.topNonListedTag()) ? 3 : 1;
+				int rad_multiplier = (tag == m_tag_table.topTag()) ? 3 : 1;
 				for( int item : tag.items) {
 					
 					ellipse(

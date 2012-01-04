@@ -94,10 +94,11 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 		
 //		System.out.println("Begin update hilight");
 		if( node != null ) {
-			if( node.hilighted ) {
-				
-				return false;
+			
+			if( node.hilighted ) {	
+				//return false; 		// commented so as not to suppress highlight of same node; so user can click node, click tag, then click same node
 			}
+			
 			if( hilightedNode != null ) {
 				
 				hilightedNode.hilighted = false;
@@ -337,12 +338,15 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 						.round(((getWidth() - HIST_WIDTH - HIST_SCALE_WIDTH) - 2 * BORDER_SIZE)
 								* ((float) ttn.num_points) / ((float) topsize));
 				
+				// recursively draw edges, in reverse tag queue order
 				drawEdge(ttn, left, right, 0, -1, -1, true,null);
 				for( int i = m_ttable.tag_queue.size()-1; i >= 0; i-- ) {
 
 					Tag tag = m_ttable.tag_queue.get(i);
 					drawEdge(ttn, left, right, 0, -1, -1, true,tag);
 				}
+
+				// recursively draw nodes, in reverse tag queue order
 				drawNode(ttn, left, right, 0, -1, -1, true,null);
 				for( int i = m_ttable.tag_queue.size()-1; i >= 0; i-- ) {
 
@@ -496,7 +500,6 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 	}
 
 	// recursive draw routine
-
 	public void drawNode(TopoTreeNode node, int left, int right, int level,
 			int px, int py, boolean drawNode, Tag t ) {
 
@@ -515,7 +518,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 				stroke(	t.tag_color.getRed(),
 						t.tag_color.getGreen(),
 						t.tag_color.getBlue());
-				if( t == m_ttable.topTag() || t == m_ttable.topNonListedTag() ) {
+				if( t == m_ttable.topTag() ) {
 					strokeWeight(3.f);
 				}
 				else {
@@ -610,7 +613,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 				noStroke();
 
 			int node_size = DEF_NODE_SIZE;
-			if (node.hilighted || (draw_full && (t==m_ttable.topTag()|| t == m_ttable.topNonListedTag()))) {
+			if (node.hilighted || (draw_full && t==m_ttable.topTag())) {
 				node_size = 3*DEF_NODE_SIZE;
 			}
 			if( t != null && !draw_full )
@@ -651,7 +654,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 				stroke(	t.tag_color.getRed(),
 						t.tag_color.getGreen(),
 						t.tag_color.getBlue());
-				if( t == m_ttable.topTag() || t == m_ttable.topNonListedTag()) {
+				if( t == m_ttable.topTag() || t == m_ttable.topTag()) {
 					strokeWeight(6.f);
 				}
 				else {
@@ -665,7 +668,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 					stroke(	t.tag_color.getRed(),
 							t.tag_color.getGreen(),
 							t.tag_color.getBlue());
-					if( t == m_ttable.topTag() || t == m_ttable.topNonListedTag() ) {
+					if( t == m_ttable.topTag() || t == m_ttable.topTag() ) {
 						strokeWeight(6.f);
 					}
 					else {

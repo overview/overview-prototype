@@ -54,7 +54,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 	File m_chosenFile = null;
 	JLabel title_label = null;
 	TagList m_tagList = null;
-	DocList m_node_tree = null;
+	DocList m_docList = null;
 	
 	class TagIcon implements Icon {
 
@@ -284,7 +284,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 					other_tags.add( new TagListItem(ttable.topTag() == t, t) );
 				}
 			}
-			
+				
 			tag_p = new JPanel() {
 				
 				public void doLayout() {
@@ -350,6 +350,14 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 		boolean m_isTop = false;
 		int tag_hard_width = 290;
 		
+		private ArrayList<Integer> itemsToApply() {
+			ArrayList<Integer> items = m_docList.getSelectedItems();
+			if (items.size() == 0) {
+				items = new ArrayList<Integer>(m_ttable.getListedTag().items);
+			}
+			return items;
+		}
+
 		public TagListItem( boolean isTop, Tag t ) {
 					
 			m_isTop = isTop;
@@ -357,23 +365,22 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 			kill_button = new JButton("X");
 			add_to_button = new JButton("+");
 			take_from_button = new JButton("-");
-			
+						
 			add_to_button.addActionListener( new ActionListener() {
 				
+				// Add currently selected items to tag. If no currently selected items, add currently listed items.
 				@Override
 				public void actionPerformed(ActionEvent e) {
-
-					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
-					m_ttable.addFromActiveSet(m_t, m_node_tree.getSelectedItems());
+					m_ttable.addItems(m_t, itemsToApply());
+					m_docList.redraw();
 				}
 			});
 			take_from_button.addActionListener( new ActionListener() {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-
-					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
-					m_ttable.remFromActiveSet(m_t, m_node_tree.getSelectedItems());
+					m_ttable.removeItems(m_t, itemsToApply());
+					m_docList.redraw();
 				}
 			});
 			kill_button.addActionListener( new ActionListener() {
@@ -381,8 +388,8 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				@Override
 				public void actionPerformed(ActionEvent e) {
 
-					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
 					m_ttable.killTag(m_t);
+					m_docList.redraw();
 				}
 			});
 			
@@ -393,13 +400,12 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 
-					System.out.println("TAG CLICK");
+					//System.out.println("TAG CLICK");
 					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
 					
-					// When a tag is clicked, copy its contents into the listed tag
+					// When a tag is clicked, copy its contents into the listed tag, and promote 
 					m_ttable.getListedTag().setItems(new ArrayList<Integer>(m_t.items));
-					m_ttable.promoteTagSilent(m_t);
-					m_ttable.promoteTag(m_ttable.getListedTag());
+					m_ttable.promoteTag(m_t);
 				}
 			});
 			if( isTop ) {

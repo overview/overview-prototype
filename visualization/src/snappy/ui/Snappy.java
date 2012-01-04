@@ -576,7 +576,7 @@ public class Snappy extends JFrame implements ChangeListener {
 		tt_control.node_labeller = node_labeller;
 		glimmer_drawer.node_labeller = node_labeller;
 		
-		tag_control.m_node_tree = doc_list_control;
+		tag_control.m_docList = doc_list_control;
 		
 		// If we have a list of HTML files, create a panel to view them in
 		if( is_url_available ) {
