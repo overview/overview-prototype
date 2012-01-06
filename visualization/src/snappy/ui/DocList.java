@@ -413,17 +413,38 @@ public class DocList extends JPanel implements ListSelectionListener,
 
 		// For the moment, redraw fully whenever we get this notification... really all sorts of things could have changed, but this is safe.
 		// This is also where we load the document list, from the "listed" tag
-		// Clear the "selected" items here too	
+		// Set selected items to intersection of new items and old selected items
 		
 		Tag t = m_ttable.getListedTag();	
 		ignore_selection_events = true;
-		
-		// items!
+
+	
+		// load items!
 		ArrayList<Integer> listed_items= new ArrayList<Integer>(t.items);
 		NodeTreeListModel temp_item_model = new NodeTreeListModel();
 		temp_item_model.addSlew(listed_items);
 		item_jlist.setModel(temp_item_model);
 		item_jlist.clearSelection();
+
+		// Iterate through selected tag. For each item, either select it if it is still in our list, or remove from selected tag
+		HashSet<Integer> selected_items = m_ttable.getSelectedTag().items;
+		ArrayList<Integer> new_selected_items = new ArrayList<Integer>();
+		ArrayList<Integer> sel_items_idx = new ArrayList<Integer>();
+		for (Integer sel_item : selected_items) {
+			int listed_idx = listed_items.indexOf(sel_item);
+			if (listed_idx != -1) {
+				new_selected_items.add(sel_item);
+				sel_items_idx.add(listed_idx);
+			}				
+		}
+		
+		// Set both the selected tag and our selection state to the intersection we just computed
+		m_ttable.getSelectedTag().setItems(new_selected_items);
+		
+		int [] sel_items_ints = new int[sel_items_idx.size()];		// stupid ArrayList<Integer> -> int[] conversion.
+		for (int i=0; i<sel_items_ints.length; i++)
+			sel_items_ints[i] = sel_items_idx.get(i);
+		item_jlist.setSelectedIndices(sel_items_ints);
 
 		// nodes! include only fully selected nodes
 		HashSet<TopoTreeNode> comp_lookup = new HashSet<TopoTreeNode>();
@@ -457,8 +478,6 @@ public class DocList extends JPanel implements ListSelectionListener,
 		node_jlist.clearSelection();
 
 		ignore_selection_events = false; 
-
-		m_ttable.getSelectedTag().clear();  // nothing selected; we just cleared selected in the DocList model, now clear it in the TabTable model
 
 		redraw();
 	}
@@ -543,18 +562,13 @@ public class DocList extends JPanel implements ListSelectionListener,
 			// Item list seleciton changed, set selected items tag directly
 			//System.out.println("ITEM LIST EVENT");
 			int[] indices = item_jlist.getSelectedIndices();
-			
-			m_ttable.getSelectedTag().removeItem(
-					new ArrayList<Integer>(m_ttable.getSelectedTag().items));		// select nothing
-			
 			if( indices.length > 0 ) {
 				ArrayList<Integer> itemsToAdd = new ArrayList<Integer>();
 				for( int index : indices ) {
-
 					itemsToAdd.add((Integer)item_jlist.getModel().getElementAt(index));
 				}
-				m_ttable.getSelectedTag().addItem(itemsToAdd);
-				m_ttable.promoteTagSilent(m_ttable.getSelectedTag());
+				m_ttable.getSelectedTag().setItems(itemsToAdd);
+//				m_ttable.promoteTagSilent(m_ttable.getSelectedTag());
 			}
 			
 			node_jlist.clearSelection();  // clear selection
@@ -600,6 +614,8 @@ public class DocList extends JPanel implements ListSelectionListener,
 				tagChangeListener.tagsChanged();
 			}
 */
+			
+			m_ttable.notifyListenersTagsChangedExcept(this);
 		}
 		else if( arg0.getSource() == node_jlist ) {
 		

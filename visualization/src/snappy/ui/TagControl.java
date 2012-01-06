@@ -50,7 +50,8 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 	JTextField newTagField = null;
 	JButton newTagButton = null;
 	TagTable m_ttable = null;
-	JButton save_button = null;
+	JButton load_button = null;
+	JButton save_button = null;	
 	File m_chosenFile = null;
 	JLabel title_label = null;
 	TagList m_tagList = null;
@@ -122,11 +123,18 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 						+ newTagButton.getPreferredSize().height + 10, myWidth,
 				taglist_height);
 		
-		save_button.setBounds(insets.left,
-				insets.top + title_label.getPreferredSize().height
-						+ newTagButton.getPreferredSize().height
-						+ taglist_height + 15, myWidth,
-				save_button.getPreferredSize().height);
+		int loadsave_width = (myWidth-30)/2;
+		int loadsave_y = insets.top + title_label.getPreferredSize().height + newTagButton.getPreferredSize().height + taglist_height + 15;
+
+		load_button.setBounds(insets.left + 10,
+							  loadsave_y,
+							  loadsave_width,
+							  load_button.getPreferredSize().height);
+
+		save_button.setBounds(insets.left + loadsave_width + 20,
+				  			  loadsave_y,
+				  			  loadsave_width,
+				  			  save_button.getPreferredSize().height);
 	}
 	
 	public Dimension getPreferredSize() {
@@ -160,8 +168,12 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 		newTagButton = new JButton("NEW");
 		newTagButton.addActionListener(this);
 		
+		load_button = new JButton("LOAD");
+		load_button.addActionListener(this);
+		
 		save_button = new JButton("SAVE");
 		save_button.addActionListener(this);
+		
 		title_label = new JLabel("Tags View");
 		title_label.setForeground(PrettyColors.DarkGrey);
 		
@@ -170,11 +182,45 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 		this.add(title_label);
 		this.add(newTagField);
 		this.add(newTagButton);
+		this.add(load_button);
 		this.add(save_button);
 		this.add(m_tagList);
 	}
 
-
+	
+	private static int LOADFILE = 0;
+	private static int SAVEFILE = 1;
+	
+	private String ChooseFilename(int loadsave) {
+		JFileChooser chooser = null;
+		String filename = null;
+		
+		if( m_chosenFile == null ) {
+			chooser = new JFileChooser();
+		}
+		else {
+			chooser = new JFileChooser(m_chosenFile);
+		}
+	
+		int dlgret = 0;
+		if (loadsave == LOADFILE)
+			dlgret = chooser.showOpenDialog(this);
+		else
+			dlgret = chooser.showSaveDialog(this);
+			
+		if(dlgret == JFileChooser.APPROVE_OPTION) {
+			try {
+				m_chosenFile = chooser.getSelectedFile();
+				filename = m_chosenFile.getCanonicalPath();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return filename;		
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 
@@ -187,27 +233,23 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				m_ttable.newTag(newTagField.getText());
 			}
 		}
+		
+		if( arg0.getSource() == load_button ) {
+
+			String filename = ChooseFilename(LOADFILE);
+			if (filename != null) {
+				m_ttable.loadTagFile(filename);
+			}
+		}
+		
 		if( arg0.getSource() == save_button ) {
 
-			JFileChooser chooser = null;
-			if( m_chosenFile == null ) {
-				chooser = new JFileChooser();
+			String filename = ChooseFilename(SAVEFILE);
+			if (filename != null) {
+				m_ttable.saveTagFile(filename);
 			}
-			else {
-				chooser = new JFileChooser(m_chosenFile);
-			}
-			int retval = chooser.showSaveDialog(this);
-			if( retval == JFileChooser.APPROVE_OPTION) {
-				
-				m_chosenFile = chooser.getSelectedFile();
-				try {
-					m_ttable.saveTagFile(m_chosenFile.getCanonicalPath());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}		
+		}
+			
 	}
 
 	@Override
@@ -238,6 +280,7 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 		
 		int v_spacing = 0;
 		JPanel tag_p = null;
+		
 		public void doLayout() {
 
 			int width = this.getWidth();

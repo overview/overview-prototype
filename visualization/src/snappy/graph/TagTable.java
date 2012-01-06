@@ -424,11 +424,20 @@ public class TagTable {
 	}
 
 	// Call this to send a message to all listerners 
-	void notifyListenersTagsChanged() {
+	public void notifyListenersTagsChanged() {
 		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
 			tagChangeListener.tagsChanged();
 		}			
 	}
+	
+	// Send message to all listeners except... (used to avoid self loops)
+	public void notifyListenersTagsChangedExcept(Object notthis) {
+		for( TagChangeListener tagChangeListener : tagChangeListeners ) {
+			if ((Object)tagChangeListener != notthis)
+				tagChangeListener.tagsChanged();
+		}			
+	}
+	
 	
 	public void killTag( Tag tag ) {
 		
@@ -446,7 +455,7 @@ public class TagTable {
 		tag_order_added.add(tag);
 		
 		// notify tag listeners to redraw
-		notifyListenersTagsChanged();
+		notifyListenersTagsChanged();  
 	}
 	
 	/*
@@ -470,7 +479,7 @@ public class TagTable {
 
 	
 	/*
-	 * Constructs and applies tags from a file
+	 * Constructs and applies tags from a file. Appends to existing tags, if any. This means there may be dup tag names; the user can easily merge if needed.
 	 */
 	public void loadTagFile( String tagFileName ) {
 		
@@ -495,9 +504,10 @@ public class TagTable {
 			breader.close();
 		}
 		catch(Exception e) {
-			
 			e.printStackTrace();
-		}		
+		}
+		
+		notifyListenersTagsChanged();		// new tags, everyone!
 	}
 	
 	/*

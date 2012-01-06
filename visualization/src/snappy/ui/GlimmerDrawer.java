@@ -494,6 +494,27 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 			noLoop();
 
 		}
+		
+		private void drawItem(int item, float min_x, float min_y, float x_trans, float y_trans, int rad) {
+			ellipse(
+					(int) Math.round(boundary
+							+ x_offset +(m_glimmer_layout.m_embed[item * 2] - min_x)
+							* x_trans * x_scaler),
+					(int) Math.round(boundary
+							+ y_offset +(m_glimmer_layout.m_embed[item * 2 + 1] - min_y)
+							* y_trans * x_scaler), rad, rad);		
+		}
+		
+		private void drawTag(Tag tag, float min_x, float min_y, float x_trans, float y_trans, int rad) {
+			
+			Color c = tag.tag_color;
+			fill(c);
+			
+			for( int item : tag.items) {
+				drawItem(item, min_x, min_y, x_trans, y_trans, rad);
+			}			
+		}
+		
 		public void draw() {
 
 			noStroke();
@@ -520,58 +541,35 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 			float x_trans = (getWidth() - 2 * boundary);// / (max_x - min_x);
 			float y_trans = (getHeight() - 2 * boundary);// / (max_y - min_y));
 
-			// draw the points
-
+			// first draw all not tagged points
 			fill( defaultColor );
-			
 			for (int i = 0; i < m_glimmer_layout.m_embed.length / 2; i++) {
-
-//				System.out.println(""+ i + " DRAW AT : (" + ((int) Math.round(boundary
-//						+ (m_glimmer_layout.m_embed[i * 2] - min_x)
-//						* x_trans)) + "," + ((int) Math.round(boundary
-//								+ (m_glimmer_layout.m_embed[i * 2 + 1] - min_y)
-//								* y_trans)) + ")");
 				
 				Color c = m_tag_table.itemColor(i);
-
 				if( c != null )
 					continue;
 				
-				ellipse(
-						(int) Math.round(boundary
-								+ x_offset + (m_glimmer_layout.m_embed[i * 2] - min_x)
-								* x_trans * x_scaler),
-						(int) Math.round(boundary
-								+ y_offset + (m_glimmer_layout.m_embed[i * 2 + 1] - min_y)
-								* y_trans * x_scaler), point_radius, point_radius);
+				drawItem(i, min_x, min_y, x_trans, y_trans, point_radius);
 			}
 			
-//			// draw the tagged points (from back to front)
-//			
+			// draw the tagged points (from back to front.) Use a larger size for the top tag			
 			for( int i = m_tag_table.tag_queue.size()-1; i >= 0; i-- ) {
-
+				
 				Tag tag = m_tag_table.tag_queue.get(i);
-				Color c = tag.tag_color;
-				fill(c);
-				int rad_multiplier = (tag == m_tag_table.topTag()) ? 3 : 1;
-				for( int item : tag.items) {
-					
-					ellipse(
-							(int) Math.round(boundary
-									+ x_offset +(m_glimmer_layout.m_embed[item * 2] - min_x)
-									* x_trans * x_scaler),
-							(int) Math.round(boundary
-									+ y_offset +(m_glimmer_layout.m_embed[item * 2 + 1] - min_y)
-									* y_trans * x_scaler), point_radius*rad_multiplier, point_radius*rad_multiplier);
+				if (!tag.is_selected) {
+					int rad_multiplier = (tag == m_tag_table.topTag()) ? 3 : 1;
+					drawTag(tag, min_x, min_y, x_trans, y_trans, point_radius*rad_multiplier);
 				}
 			}
+			
+			// draw the selected tag on top of all, always large
+			drawTag(m_tag_table.getSelectedTag(), min_x, min_y, x_trans, y_trans, point_radius*3);
 			
 			fill(defaultColor);
 
 			strokeWeight(1.f);
 			
 			// draw the selection rect
-			
 			if (is_dragging_box) {
 
 				noFill();
