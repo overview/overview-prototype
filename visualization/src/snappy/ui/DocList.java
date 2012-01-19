@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Random;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -32,6 +35,7 @@ import snappy.graph.TagTable;
 import snappy.graph.TagTable.Tag;
 import snappy.graph.TopoTreeNode;
 
+
 /*
  * Control for displaying and listening to selections in the topological tree of the graph
  * will display tree nodes as parent nodes with summary strings and tree leaves as leaf nodes 
@@ -44,16 +48,19 @@ public class DocList extends JPanel implements ListSelectionListener,
 
 	boolean ignore_selection_events = false;
 	TagTable m_ttable = null;
-
+	
 	public JList item_jlist = null;
 	public JList node_jlist = null;
-
+	JLabel title_label = null;
+	
 	NodeLabeller node_labeller = null;
-	JButton clear_button = null;
+	JButton random_button = null;
 
 	ArrayList<ChangeListener> changeListeners = null;
 	ArrayList<TagChangeListener> tagChangeListeners = null;
 
+	Random rand = new Random();
+	
 	public void addTagChangeListener(TagChangeListener listener) {
 
 		tagChangeListeners.add(listener);
@@ -76,6 +83,11 @@ public class DocList extends JPanel implements ListSelectionListener,
 				title_label.getPreferredSize().width,
 				title_label.getPreferredSize().height);
 
+		random_button.setBounds(
+				myWidth - insets.right - random_button.getPreferredSize().width,
+				insets.top, random_button.getPreferredSize().width,
+				title_label.getPreferredSize().height);
+		
 		insets.top += title_label.getPreferredSize().height; // change inset to be just item viewer area
 		myHeight = (height - insets.top) - insets.bottom;
 		
@@ -91,7 +103,6 @@ public class DocList extends JPanel implements ListSelectionListener,
 
 	}
 
-	JLabel title_label = null;
 	JScrollPane scrollPane_items = null;
 	JScrollPane scrollPane_nodes = null;
 
@@ -140,6 +151,18 @@ public class DocList extends JPanel implements ListSelectionListener,
 
 		item_jlist.setModel(new NodeTreeListModel());
 		node_jlist.setModel(new NodeTreeListModel());
+		
+		// This button sets the selection to a random item in the document list
+		random_button = new JButton("Select Random");
+		random_button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				item_jlist.setSelectedIndex(rand.nextInt(item_jlist.getModel().getSize()));
+			}
+		});
+		this.add(random_button);
+
 	}
 
 	public ArrayList<TopoTreeNode> getActiveNodeSet() {
@@ -418,7 +441,9 @@ public class DocList extends JPanel implements ListSelectionListener,
 		Tag t = m_ttable.getListedTag();	
 		ignore_selection_events = true;
 
-	
+		// set label to number of items
+		title_label.setText(t.items.size() + " documents");
+		
 		// load items!
 		ArrayList<Integer> listed_items= new ArrayList<Integer>(t.items);
 		NodeTreeListModel temp_item_model = new NodeTreeListModel();
