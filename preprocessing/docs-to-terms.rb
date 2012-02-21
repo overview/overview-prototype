@@ -4,7 +4,7 @@
 # Assigns sequential UIDs if missing
 
 require 'csv'
-require 'stemmer'
+#require 'stemmer'
 require 'tf-idf_csv.rb'
 require 'lex.rb'
 
