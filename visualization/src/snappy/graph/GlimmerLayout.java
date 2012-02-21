@@ -20,7 +20,7 @@ public class GlimmerLayout {
 
 	public static boolean DRAW_EDGES = false;
 	public static boolean DRAW_LABELS = false;
-	public static int POWER_FACTOR = 8;
+	public static int POWER_FACTOR = 24;
 	static int V_SET_SIZE = 14;
 	static int S_SET_SIZE = 10; // number of randomly chosen neighbors
 	static int MAX_ITERATION = 50000; // maximum number of iterations

@@ -122,6 +122,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				
 				start_stop_button.setBounds(insets.left, insets.top, myWidth/5 - 5, myHeight);
 				
+/*				
 				int larger_label = (int) Math.max(  squeeze_label.getPreferredSize().getWidth(),
 													pointsize_label.getPreferredSize().getWidth());	
 				
@@ -135,27 +136,30 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				power_slider.setBounds(insets.left + myWidth/5 + larger_label, insets.top, 4*myWidth/5 - larger_label, larger_height);
 				point_size_slider.setBounds(insets.left + myWidth/5 + larger_label, insets.top + larger_height + 5, 
 						4*myWidth/5 - larger_label, larger_height);
+*/
 			}			
 			
 			public Dimension getPreferredSize() {
-				
+				return new Dimension(5,(int)start_stop_button.getPreferredSize().getHeight());
+/*				
 				return new Dimension((int)Math.max(  squeeze_label.getPreferredSize().getWidth(),
 						pointsize_label.getPreferredSize().getWidth()), (int)Math.max(squeeze_label.getPreferredSize().getHeight(), 
 								Math.max(pointsize_label.getPreferredSize().getHeight(), 
 										Math.max(power_slider.getPreferredSize().getHeight(), 
 												point_size_slider.getPreferredSize().getHeight())))*2+5);
+*/	
 			}
 		};
 		control_panel.setBackground(Color.WHITE);
-		
+/*		
 		squeeze_label = new JLabel("Squeeze");
 		pointsize_label = new JLabel("Point Size");
 		squeeze_label.setBackground(Color.WHITE);
 		pointsize_label.setBackground(Color.WHITE);
 		squeeze_label.setHorizontalAlignment(SwingConstants.RIGHT);
 		pointsize_label.setHorizontalAlignment(SwingConstants.RIGHT);
-		
-		start_stop_button = new JButton("Run MDS");
+*/		
+		start_stop_button = new JButton("Cluster!");
 		start_stop_button.addActionListener(new ActionListener() {
 
 			@Override
@@ -183,7 +187,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 			}
 		});
 
-		power_slider = new JSlider(1, 32, GlimmerLayout.POWER_FACTOR);
+/*		power_slider = new JSlider(1, 32, GlimmerLayout.POWER_FACTOR);
 		power_slider.addChangeListener(this);
 		point_size_slider = new JSlider(1,10,point_radius);
 		point_size_slider.addChangeListener(new ChangeListener() {
@@ -195,7 +199,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				draw_panel.redraw();
 			}
 		});
-		
+*/		
 		title_label = new JLabel("Items Plot");
 		title_label.setForeground(PrettyColors.DarkGrey);
 		
@@ -206,11 +210,11 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 //		draw_edges_box.addItemListener(this);
 //		draw_labels_box.addItemListener(this);
 
-		control_panel.add( point_size_slider );
-		control_panel.add( power_slider );
+//		control_panel.add( point_size_slider );
+//		control_panel.add( power_slider );
 		control_panel.add( start_stop_button );
-		control_panel.add( squeeze_label );
-		control_panel.add( pointsize_label );
+//		control_panel.add( squeeze_label );
+//		control_panel.add( pointsize_label );
 		
 		this.add(title_label);
 		this.add(draw_panel);
@@ -585,16 +589,17 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
-
+/*
 		if( arg0.getSource() == power_slider)  {
 			
 			GlimmerLayout.POWER_FACTOR = power_slider.getValue();
 		}
+*/
 	}
 
 	@Override
 	public void itemStateChanged(ItemEvent arg0) {
-
+/*
 		if( arg0.getSource() == draw_edges_box ) {
 			
 			GlimmerLayout.DRAW_EDGES = draw_edges_box.isSelected();
@@ -603,5 +608,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 			
 			GlimmerLayout.DRAW_LABELS = draw_labels_box.isSelected();
 		}
+*/
 	}
+
 }
