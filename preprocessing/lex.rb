@@ -74,13 +74,18 @@ class Lexer
     end
     
     text.downcase!
-    text.gsub!(/<[^>]*>/, '') # strip HTML, I'm not sure how/why HTML ended up in the text anyway
-    text.tr!('"()[]:,',' ')   # turn certain punctation into spaces
 
+    # cleanups on Cable and Warlogs data
     text.gsub!("&amp;","")  # data has some HTML apostrophe mess, clean it up
     text.gsub!("amp;","")
     text.gsub!("apos;","'")
     text.gsub!("''","'")    # double '' to single '
+    text.gsub!(/<[^>]*>/, '') # strip HTML, I'm not sure how/why HTML ended up in the text anyway
+
+    # otherwise, allow only a small set of characters
+    text.tr!('"()[]:,',' ')   # turn certain punctation into spaces
+    text.gsub!(/[^0-9a-z\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
+    text.gsub!(/\s\s*/, ' ')  # collapse runs of spaces into single spaces
 
     terms = text.split(' ')
     terms.map!{ |t| t.sub(/^[^a-z0-9]+/,'').sub(/[^a-z0-9]+$/,'') } # remove leading/trailing punctuation
