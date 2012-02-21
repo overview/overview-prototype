@@ -1,10 +1,10 @@
 require 'set'
 require 'csv'
-require 'stemmer'
+#require 'stemmer'
 
-class String
-  include Stemmable
-end
+#class String
+#  include Stemmable
+#end
 
 # Overview prototype lexical analysis
 # Terms text to a term list, including various cleanups
@@ -105,11 +105,13 @@ class Lexer
           next
         end
       end
-      
+  
+      # DISABLED stemming, for easier installation (stemmer gem not req'd) js 21/2/2012
       # no bigram here, stem the individual term, output if it's "acceptable"
-      if @stem_terms 
-        t = t.stem
-      end
+      #if @stem_terms 
+      #  t = t.stem
+      #end
+      
       if term_acceptable(t)
         termsout << t
       end
