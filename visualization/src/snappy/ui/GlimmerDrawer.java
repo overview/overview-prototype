@@ -168,14 +168,14 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				synchronized (m_layout_thread) {
 
 					if (!m_layout_thread.isAlive()) {
-						start_stop_button.setText("Pause MDS");
+						start_stop_button.setText("STOP");
 						is_paused = false;
 						m_layout_thread.start();
 					} else {
 						is_paused = !is_paused;
 						if (is_paused) {
 
-							start_stop_button.setText("Run MDS");
+							start_stop_button.setText("Cluster!");
 						}
 						else {
 							
