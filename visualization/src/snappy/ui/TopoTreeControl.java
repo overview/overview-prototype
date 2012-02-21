@@ -24,7 +24,6 @@ import snappy.graph.TopoTreeNode;
 public class TopoTreeControl extends PApplet implements ComponentListener,
 		ChangeListener, TagChangeListener {
 
-	
 	public NodeLabeller node_labeller = null;
 	
 	boolean is_hovering = false;
@@ -54,6 +53,9 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 	static final int HIST_WIDTH = 50;
 	static final int HIST_SCALE_WIDTH = 50;
 
+	static boolean draw_hist = false;							// set to true if you want to see the histogram
+	static int hist_actual_width = draw_hist ? HIST_WIDTH + HIST_SCALE_WIDTH : 0;
+	
 	static final int PRUNER_HEIGHT = 30;
 	static int HOVER_HEIGHT = 10;
 	static int BOTTOM_CTRL_HEIGHT = PRUNER_HEIGHT + HOVER_HEIGHT;
@@ -292,50 +294,48 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 		level_size = (int) Math.round(((float) getHeight() - BOTTOM_CTRL_HEIGHT)
 				/ (levels + 1.f));
 
-		// draw the scale 
+		// draw the histogram scale 
+		if (draw_hist) {
+			fill(0);
+			stroke(0);
+			
+			line(HIST_WIDTH + 5,level_size,HIST_WIDTH + 5 + 1*HIST_SCALE_WIDTH/3,level_size);
+			line(HIST_WIDTH + 5,level_size*levels,HIST_WIDTH + 5 + 1*HIST_SCALE_WIDTH/3,level_size*levels);
+			text("1.0", HIST_WIDTH + 10 + 1*HIST_SCALE_WIDTH/3,level_size*2);
+			text("0.0", HIST_WIDTH + 10 + 1*HIST_SCALE_WIDTH/3,level_size*levels);
+			
+			line(HIST_WIDTH + 5 + HIST_SCALE_WIDTH/6,level_size,HIST_WIDTH + 5 + HIST_SCALE_WIDTH/6,level_size*levels);
+			
+			rotate(-PI/2.f);
+			String scale_title = "Distance Threshold"; 
+			text(scale_title,-(level_size*levels + level_size)/2 - textWidth(scale_title)/2, HIST_WIDTH + 5 + 2*HIST_SCALE_WIDTH/3 );
+			rotate(PI/2.f);
+		}
 		
-		fill(0);
-		stroke(0);
-		
-		line(HIST_WIDTH + 5,level_size,HIST_WIDTH + 5 + 1*HIST_SCALE_WIDTH/3,level_size);
-		line(HIST_WIDTH + 5,level_size*levels,HIST_WIDTH + 5 + 1*HIST_SCALE_WIDTH/3,level_size*levels);
-		text("1.0", HIST_WIDTH + 10 + 1*HIST_SCALE_WIDTH/3,level_size*2);
-		text("0.0", HIST_WIDTH + 10 + 1*HIST_SCALE_WIDTH/3,level_size*levels);
-		
-		line(HIST_WIDTH + 5 + HIST_SCALE_WIDTH/6,level_size,HIST_WIDTH + 5 + HIST_SCALE_WIDTH/6,level_size*levels);
-		
-		rotate(-PI/2.f);
-		String scale_title = "Distance Threshold"; 
-		text(scale_title,-(level_size*levels + level_size)/2 - textWidth(scale_title)/2, HIST_WIDTH + 5 + 2*HIST_SCALE_WIDTH/3 );
-		rotate(PI/2.f);
-		
-		// draw the levels
-
+		// draw the levels (ruled horizontal lines going through tree)	
 		stroke(128 + 64 + 32);
-
+	
 		for (int i = 0; i < levels; i++) {
-
-
 			int y = level_size + i * level_size;
-			line(HIST_WIDTH + HIST_SCALE_WIDTH, y, getWidth(), y);
+			line(hist_actual_width, y, getWidth(), y);
 		}
 
+		
 		// slice up the top level
-
 		int topsize = 0;
 		for (TopoTreeNode ttn : m_tt.roots) {
 
 			if (ttn.num_points >= ignore_component_size)
 				topsize += ttn.num_points;
 		}
-		int left = BORDER_SIZE+HIST_SCALE_WIDTH+HIST_WIDTH;
+		int left = BORDER_SIZE + hist_actual_width;
 		int right = left;
 		for (TopoTreeNode ttn : m_tt.roots) {
 
 			if (ttn.num_points >= ignore_component_size) {
 
 				right += (int) Math
-						.round(((getWidth() - HIST_WIDTH - HIST_SCALE_WIDTH) - 2 * BORDER_SIZE)
+						.round(((getWidth() - hist_actual_width) - 2 * BORDER_SIZE)
 								* ((float) ttn.num_points) / ((float) topsize));
 				
 				// recursively draw edges, in reverse tag queue order
@@ -358,62 +358,62 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 		}
 
 		// draw the histogram on the side
-
-		fill(255);
-		stroke(255);
-		rect(0, 0, HIST_WIDTH, getHeight() - BOTTOM_CTRL_HEIGHT);
-
-		// do some normalization
-
-		float max_binlen = Float.MIN_VALUE;
-		float min_binlen = Float.MAX_VALUE;
-		for (int i = 0; i < bins.length; i++) {
-
-			if (bins[i] > 0) {
-
-				max_binlen = Math.max(max_binlen, (float) bins[i]);
-				min_binlen = Math.min(min_binlen, (float) bins[i]);
-//				max_binlen = Math.max(max_binlen, (float) Math.log10(bins[i]));
-//				min_binlen = Math.min(min_binlen, (float) Math.log10(bins[i]));
-			} else {
-//				max_binlen = Math.max(max_binlen, -2.f);
-//				min_binlen = Math.min(min_binlen, -2.f);
-				max_binlen = Math.max(max_binlen, 0);
-				min_binlen = Math.min(min_binlen, 0);
+		if (draw_hist) {
+			fill(255);
+			stroke(255);
+			rect(0, 0, HIST_WIDTH, getHeight() - BOTTOM_CTRL_HEIGHT);
+	
+			// do some normalization
+	
+			float max_binlen = Float.MIN_VALUE;
+			float min_binlen = Float.MAX_VALUE;
+			for (int i = 0; i < bins.length; i++) {
+	
+				if (bins[i] > 0) {
+	
+					max_binlen = Math.max(max_binlen, (float) bins[i]);
+					min_binlen = Math.min(min_binlen, (float) bins[i]);
+	//				max_binlen = Math.max(max_binlen, (float) Math.log10(bins[i]));
+	//				min_binlen = Math.min(min_binlen, (float) Math.log10(bins[i]));
+				} else {
+	//				max_binlen = Math.max(max_binlen, -2.f);
+	//				min_binlen = Math.min(min_binlen, -2.f);
+					max_binlen = Math.max(max_binlen, 0);
+					min_binlen = Math.min(min_binlen, 0);
+				}
 			}
-		}
-		max_binlen += 1.0;
-
-		stroke(255);
-		fill(0x25, 0x8B, 0xC1);
-
-		float binrange = max_binlen - min_binlen;
-
-		for (int i = 0; i < bins.length; i++) {
-
-			int y = level_size / 2 + i * level_size;
-			float bf_val = 0.f;
-			if (bins[(bins.length - 1) - i] == 0) {
-
-				bf_val = 0;
-			} else {
-//				bf_val = (float) Math.log10(bins[(bins.length - 1) - i]);
-				bf_val = (float) bins[(bins.length - 1) - i];
-			}
-			if( i == 0 ) {
-				rect((HIST_WIDTH - 1) - (HIST_WIDTH
-						* (max_binlen - min_binlen) / binrange), y, HIST_WIDTH
-						* (max_binlen - min_binlen) / binrange, level_size);
-			}
-			else if ( i < bins.length-1 ) {
-				rect((HIST_WIDTH - 1) - ((bf_val-min_binlen > 0)?Math.max(2, HIST_WIDTH
-						* (bf_val - min_binlen) / binrange):0), y, (bf_val-min_binlen > 0)?Math.max(2, HIST_WIDTH
-						* (bf_val - min_binlen) / binrange):0, level_size);				
+			max_binlen += 1.0;
+	
+			stroke(255);
+			fill(0x25, 0x8B, 0xC1);
+	
+			float binrange = max_binlen - min_binlen;
+	
+			for (int i = 0; i < bins.length; i++) {
+	
+				int y = level_size / 2 + i * level_size;
+				float bf_val = 0.f;
+				if (bins[(bins.length - 1) - i] == 0) {
+	
+					bf_val = 0;
+				} else {
+	//				bf_val = (float) Math.log10(bins[(bins.length - 1) - i]);
+					bf_val = (float) bins[(bins.length - 1) - i];
+				}
+				if( i == 0 ) {
+					rect((HIST_WIDTH - 1) - (HIST_WIDTH
+							* (max_binlen - min_binlen) / binrange), y, HIST_WIDTH
+							* (max_binlen - min_binlen) / binrange, level_size);
+				}
+				else if ( i < bins.length-1 ) {
+					rect((HIST_WIDTH - 1) - ((bf_val-min_binlen > 0)?Math.max(2, HIST_WIDTH
+							* (bf_val - min_binlen) / binrange):0), y, (bf_val-min_binlen > 0)?Math.max(2, HIST_WIDTH
+							* (bf_val - min_binlen) / binrange):0, level_size);				
+				}
 			}
 		}
 
 		// draw the pruner control
-
 		noStroke();
 		fill(64);
 		rect(0,getHeight() - BOTTOM_CTRL_HEIGHT - 15,getWidth(),PRUNER_HEIGHT+15);
