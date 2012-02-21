@@ -635,7 +635,7 @@ public class Snappy extends JFrame implements ChangeListener {
 				tt_control.redraw();
 			}
 		};
-		tt_panel_title = new JLabel("Disconnected Component Tree");
+		tt_panel_title = new JLabel("Topic Tree");
 		tt_panel_title.setForeground(PrettyColors.DarkGrey);
 		tree_panel.setBackground(Color.white);
 		tree_panel.add(tt_panel_title);

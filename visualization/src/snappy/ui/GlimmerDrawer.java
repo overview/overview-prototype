@@ -12,7 +12,8 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JRadioButton;
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -42,13 +43,12 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 	GlimmerCanvas draw_panel = null;
 	JPanel control_panel = null;
 	TagTable m_tag_table = null;
-	JCheckBox draw_edges_box = null;
-	JCheckBox draw_labels_box = null;
-	JSlider power_slider = null;
-	JSlider point_size_slider = null;
 	public NodeLabeller node_labeller = null;
 
 	JButton start_stop_button = null;
+	JRadioButton select_button = null;
+	JRadioButton pan_button = null;
+	JRadioButton zoom_button = null;
 
 	Color bkgndColor = Color.WHITE;
 	Color defaultColor = PrettyColors.DarkGrey;
@@ -105,7 +105,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 		
 		// init components
 
-		draw_panel = new GlimmerCanvas();
+		draw_panel = new GlimmerCanvas(this);
 		control_panel = new JPanel() {
 
 			/**
@@ -121,44 +121,26 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				int myHeight = (height - insets.top) - insets.bottom;
 				
 				start_stop_button.setBounds(insets.left, insets.top, myWidth/5 - 5, myHeight);
+
+				int selbutton_w = (int)select_button.getPreferredSize().getWidth();
+				int panbutton_w = (int)pan_button.getPreferredSize().getWidth();
+				int zoombutton_w = (int)zoom_button.getPreferredSize().getWidth();
 				
-/*				
-				int larger_label = (int) Math.max(  squeeze_label.getPreferredSize().getWidth(),
-													pointsize_label.getPreferredSize().getWidth());	
-				
-				int larger_height = (int) Math.max(squeeze_label.getPreferredSize().getHeight(), 
-						Math.max(pointsize_label.getPreferredSize().getHeight(), 
-								Math.max(power_slider.getPreferredSize().getHeight(), 
-										point_size_slider.getPreferredSize().getHeight())));				
-				squeeze_label.setBounds(insets.left + myWidth/5, insets.top, larger_label, larger_height);
-				pointsize_label.setBounds(insets.left + myWidth/5, insets.top + larger_height + 5, 
-						larger_label, larger_height);
-				power_slider.setBounds(insets.left + myWidth/5 + larger_label, insets.top, 4*myWidth/5 - larger_label, larger_height);
-				point_size_slider.setBounds(insets.left + myWidth/5 + larger_label, insets.top + larger_height + 5, 
-						4*myWidth/5 - larger_label, larger_height);
-*/
+				zoom_button.setBounds(insets.left + myWidth - (zoombutton_w), insets.top, zoombutton_w, myHeight);
+				pan_button.setBounds(insets.left + myWidth - (zoombutton_w + 5 + panbutton_w), insets.top, panbutton_w, myHeight);
+				select_button.setBounds(insets.left + myWidth - (zoombutton_w + 5 + panbutton_w + 5 + selbutton_w), insets.top, selbutton_w, myHeight);
 			}			
 			
 			public Dimension getPreferredSize() {
 				return new Dimension(5,(int)start_stop_button.getPreferredSize().getHeight());
-/*				
-				return new Dimension((int)Math.max(  squeeze_label.getPreferredSize().getWidth(),
-						pointsize_label.getPreferredSize().getWidth()), (int)Math.max(squeeze_label.getPreferredSize().getHeight(), 
-								Math.max(pointsize_label.getPreferredSize().getHeight(), 
-										Math.max(power_slider.getPreferredSize().getHeight(), 
-												point_size_slider.getPreferredSize().getHeight())))*2+5);
-*/	
 			}
 		};
+
 		control_panel.setBackground(Color.WHITE);
-/*		
-		squeeze_label = new JLabel("Squeeze");
-		pointsize_label = new JLabel("Point Size");
-		squeeze_label.setBackground(Color.WHITE);
-		pointsize_label.setBackground(Color.WHITE);
-		squeeze_label.setHorizontalAlignment(SwingConstants.RIGHT);
-		pointsize_label.setHorizontalAlignment(SwingConstants.RIGHT);
-*/		
+
+		title_label = new JLabel("Items Plot");
+		title_label.setForeground(PrettyColors.DarkGrey);
+
 		start_stop_button = new JButton("Cluster!");
 		start_stop_button.addActionListener(new ActionListener() {
 
@@ -187,34 +169,21 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 			}
 		});
 
-/*		power_slider = new JSlider(1, 32, GlimmerLayout.POWER_FACTOR);
-		power_slider.addChangeListener(this);
-		point_size_slider = new JSlider(1,10,point_radius);
-		point_size_slider.addChangeListener(new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {
-			
-				point_radius = point_size_slider.getValue();
-				draw_panel.redraw();
-			}
-		});
-*/		
-		title_label = new JLabel("Items Plot");
-		title_label.setForeground(PrettyColors.DarkGrey);
-		
-//		draw_edges_box = new JCheckBox( "Draw Selected Edges" );
-//		draw_labels_box = new JCheckBox( "Draw Selected Labels" );
-//		draw_edges_box.setSelected(GlimmerLayout.DRAW_EDGES);
-//		draw_labels_box.setSelected(GlimmerLayout.DRAW_LABELS);
-//		draw_edges_box.addItemListener(this);
-//		draw_labels_box.addItemListener(this);
+	    // Create radio buttons for Item Plot manipulation
+        select_button = new JRadioButton("Select");
+        select_button.setSelected(true);
+        pan_button = new JRadioButton("Pan");
+        zoom_button = new JRadioButton("Zoom");
 
-//		control_panel.add( point_size_slider );
-//		control_panel.add( power_slider );
+        ButtonGroup group = new ButtonGroup();
+        group.add(select_button);
+        group.add(pan_button);
+        group.add(zoom_button);        
+		
 		control_panel.add( start_stop_button );
-//		control_panel.add( squeeze_label );
-//		control_panel.add( pointsize_label );
+		control_panel.add(select_button);
+		control_panel.add(pan_button);
+		control_panel.add(zoom_button);
 		
 		this.add(title_label);
 		this.add(draw_panel);
@@ -223,7 +192,6 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 		draw_panel.init();
 
 		// make the layout thread
-
 		m_layout_thread = new Thread(new Runnable() {
 
 			@Override
@@ -268,6 +236,11 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 	
 	public class GlimmerCanvas extends PApplet {
 
+		public GlimmerCanvas(GlimmerDrawer glimmerDrawer) {
+			gd = glimmerDrawer;
+		}
+		GlimmerDrawer gd = null;
+		
 		int x_offset = 0;
 		int y_offset = 0;
 		
@@ -286,15 +259,13 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 		
 		float x_scaler = 1.f;
 		
-		boolean shift_key_down = false;
+//		boolean shift_key_down = false;
 				
-		public void fill( Color c ) {
-			
+		public void fill( Color c ) {		
 			fill( c.getRed(), c.getGreen(), c.getBlue() );
 		}
 		
 		public void stroke( Color c ) {
-			
 			stroke( c.getRed(), c.getGreen(), c.getBlue() );
 		}
 		
@@ -306,38 +277,32 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				redraw();
 			}
 		}
+		
+		// Mouse drag. Select, pan, or zoom depending on radio buttons in GlimmerDrawer
 		public void mouseDragged() {
-			
-			if( shift_key_down ) {
-				
-				if( mouseButton == LEFT ) {
-					
-					x_offset += mouseX - x_initial;
-					y_offset += mouseY - y_initial;
-					x_initial = mouseX;
-					y_initial = mouseY;			
-				}
-				else {
-					
-					int x = mouseX - x_initial_2;
-					int y = mouseY - y_initial_2;
-					x_initial_2 = mouseX;
-					y_initial_2 = mouseY;			
-	
-					x_scaler += (Math.abs(x)>Math.abs(y)?x:y)*0.01;
-	//				System.out.println("x_scaler = " + x_scaler);
-				}
-				
+
+		
+			if (gd.pan_button.isSelected()) {	// pan					
+				x_offset += mouseX - x_initial;
+				y_offset += mouseY - y_initial;
+				x_initial = mouseX;
+				y_initial = mouseY;			
 				redraw();
-			}
-			else {
+			} else if (gd.zoom_button.isSelected()) {	// zoom
+				int x = mouseX - x_initial_2;
+				int y = mouseY - y_initial_2;
+				x_initial_2 = mouseX;
+				y_initial_2 = mouseY;			
+
+				x_scaler += (Math.abs(x)>Math.abs(y)?x:y)*0.01;
+				redraw();
+			} else if (gd.select_button.isSelected()) {	// select
 				
 				is_dragging_box = true;
 				x_end_box = mouseX;
 				y_end_box = mouseY;
 				
-				// update the tagging
-				
+				// update the tagging				
 				float min_x = Float.MAX_VALUE;
 				float max_x = Float.MIN_VALUE;
 				float min_y = Float.MAX_VALUE;
@@ -386,49 +351,24 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 			
 		}
 		
-		public void keyPressed() {
-			
-			if (key == CODED) {
-				if (keyCode == SHIFT) {
-					
-					shift_key_down = true;
-				}
-			}
-		}
-		public void keyReleased() {
-			
-			if (key == CODED) {
-				if (keyCode == SHIFT) {
-					
-					shift_key_down = false;
-				}
-			}			
-		}
 		
 		public void mousePressed() {
-			
-			if( mouseButton == LEFT ) {
-				
-				if( shift_key_down ) {
-					x_initial = mouseX;
-					y_initial = mouseY;
-				}
-				else {
-					
-					x_initial_box = mouseX;
-					y_initial_box = mouseY;
-				}
-			}
-			else {
-				
+
+			if (gd.pan_button.isSelected()) {	// pan					
+				x_initial = mouseX;
+				y_initial = mouseY;
+			} else if (gd.zoom_button.isSelected()) {	// zoom
 				x_initial_2 = mouseX;
 				y_initial_2 = mouseY;
+			} else if (gd.select_button.isSelected()) {	// select
+				x_initial_box = mouseX;
+				y_initial_box = mouseY;
 			}
 		}
 		
 		public void mouseClicked() {
 			
-			if( !shift_key_down ) {
+			if( gd.select_button.isSelected() ) {		// mouse clicks (press + release, no drag) only have effect in select mode
 				
 				float min_x = Float.MAX_VALUE;
 				float max_x = Float.MIN_VALUE;
