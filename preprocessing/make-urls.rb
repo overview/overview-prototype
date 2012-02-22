@@ -1,4 +1,6 @@
-# write out 'url' column of a CSV, no header
+# write out 'url' column of a CSV, no header, OR the 'text' column, if there is no URL col
+# Overview prototype
+# Jonathan Stray, Feb 2012
 
 require 'csv'
 
@@ -13,7 +15,11 @@ outfile_name = ARGV[1]
 # yes!
 CSV.open(outfile_name,"w") do |f|
   CSV.foreach(infile_name, :headers=>true) do |row|  
-    f << [row['url']]
+    if row['url'] != nil
+      f << [row['url']]
+    else
+      f << [row['text']]
+    end
   end
 end
 

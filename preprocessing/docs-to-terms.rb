@@ -116,7 +116,7 @@ puts(unique_docs_read.to_s + " uniquely keyed documents read")
 #puts(docs_with_terms.to_s + " documents with non-empty terms")
 puts(tfidf.terms.length.to_s + " input terms")
 puts(tfidf.count_of_terms_which_occur_in_at_least_this_many_docs(MIN_DOCS_FOR_VALID_TERM).to_s + " terms not culled")
-puts(docs_with_non_culled_terms.to_s + " documents with terms that were not culled")
+puts(docs_with_non_culled_terms.to_s + " documents with non-empty text")
 
 
 

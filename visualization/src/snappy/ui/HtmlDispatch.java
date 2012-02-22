@@ -24,6 +24,7 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import snappy.data.SortedDistanceMatrix;
 import snappy.graph.TopoTreeNode;
 
+import au.com.bytecode.opencsv.CSVReader;
 
 /*
  * Receives double click events and responds to them by making a system call to open up the 
@@ -120,7 +121,17 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 
 		try {
 
-			BufferedReader breader = new BufferedReader(
+			
+			CSVReader reader = new CSVReader(new FileReader(listname));
+
+			// iterate over reader.readNext until it returns null
+			String[] line;
+			
+			while ((line = reader.readNext()) != null) {
+				returnList.add(line[0]);
+			}
+			
+/*			BufferedReader breader = new BufferedReader(
 					new FileReader(listname));
 
 			String lineStr = breader.readLine();
@@ -130,7 +141,7 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 				lineStr = breader.readLine();
 			}
 
-			breader.close();
+			breader.close();*/
 		} catch (Exception e) {
 
 			returnList = null;
@@ -176,8 +187,18 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 		if( m_list.getSelectedIndex() > -1 ) {
 			
 			Integer itemVal = (Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex());
-    		String item_url = m_item_urls.get(itemVal.intValue());
-    		m_browser.navigate(item_url);
+    		String item_string = m_item_urls.get(itemVal.intValue());
+    		
+    		// If the string is a URL, navigate there. Otherwise just consider it straight HTML content and load it
+    		if ((item_string.indexOf("http://") != -1) || (item_string.indexOf("https://") != -1)) {
+    			m_browser.navigate(item_string);
+    		} else {
+    			// If it doesn't look like HTML, wrap in pre-tags
+    			if (item_string.indexOf("<p>") == -1) {
+    				item_string = "<pre>" + item_string + "</pre>";
+    			}
+    			m_browser.setHTMLContent(item_string);
+    		}
 		}		
 	}
 }
