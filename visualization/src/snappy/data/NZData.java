@@ -361,11 +361,12 @@ public class NZData {
 			// check if the point is done 
 			
 			if( ! nzEntryData.get(ptIdx).first().dim_remains ) {
-				
 				currSamplePoints.remove(samplerIdx);
-			}
-			else {
-				
+				if (samplerIdx == currSamplePoints.size()) {
+					samplerIdx = 0;
+					iter_count++;
+				}	
+			} else {
 				samplerIdx = (samplerIdx + 1) % currSamplePoints.size();
 				if( samplerIdx == 0 ) {
 					iter_count++;
