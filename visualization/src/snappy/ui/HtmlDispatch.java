@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JList;
 import javax.swing.JTree;
@@ -23,135 +24,111 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
 import snappy.data.SortedDistanceMatrix;
 import snappy.graph.TopoTreeNode;
+import snappy.data.NZData;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVParser;
 
 /*
  * Receives double click events and responds to them by making a system call to open up the 
  * corresponding URL. 
  */
-public class HtmlDispatch extends MouseAdapter implements KeyListener,
-		ListSelectionListener {
+public class HtmlDispatch implements KeyListener, ListSelectionListener {
 
     private JWebBrowser m_browser = null;
 	private JList m_list = null;
+	private NZData m_doclist = null;
 	private Runtime m_runtime = null;
-	private String m_exec_prefix = "open";
-	private ArrayList<String> m_item_urls = null;
+	private HashMap<String,String> m_item_texts = null;
+	private boolean m_has_urls = false;
 
-	/**
-	 * 
-	 * @param tree
-	 *            The tree control from which we are mouse events
-	 * @param exec_prefix
-	 *            The prefix to send (Default is "open")
-	 * @param item_urls
-	 *            The node number indexed list of URL strings
-	 */
+
 	public HtmlDispatch(JList list, 
-						ArrayList<String> item_urls, 
+						NZData doclist,
+						String text_filename, 
 						JWebBrowser browser) {
 
 
 		m_list = list;
-		m_list.addMouseListener(this);
 		m_list.addKeyListener(this);
 		m_list.addListSelectionListener(this);
 		m_browser = browser;
-		m_item_urls = item_urls;
+		m_doclist = doclist;
 		m_runtime = Runtime.getRuntime();
+		
+		loadText(text_filename);
 	}
 
 
-	@Override
-	public void mousePressed(MouseEvent e) {
-
-		// map the mouse x,y to tree path
-
-		// int selRow = m_tree.getRowForLocation(e.getX(), e.getY());
-		// TreePath selPath = m_tree.getPathForLocation(e.getX(), e.getY());
-		//
-		// if(selRow != -1) {
-		//
-		// if(e.getClickCount() == 2) { // respond to double-click events only
-		//
-		// // get the clicked tree node from the tree path
-		//
-		// DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-		// selPath.getLastPathComponent();
-		//
-		// // respond to double clicks for the leaf nodes
-		//
-		// if( node.getUserObject() instanceof Integer ) {
-		//
-		// // grab the URL from the list
-		//
-		// String item_url =
-		// m_item_urls.get(((Integer)node.getUserObject()).intValue());
-		// try {
-		//
-		// String line = "";
-		// BufferedReader r = new BufferedReader(new FileReader(item_url));
-		// line = r.readLine();
-		// String html_string = "";
-		// while( line != null ) {
-		// html_string += line;
-		// line = r.readLine();
-		// }
-		// m_browser.setHTMLContent(html_string);
-		//
-		// r.close();
-		// // // open the url in the shell
-		// //
-		// // System.out.println("Executing : " + m_exec_prefix + item_url +
-		// ".html " );
-		// // m_runtime.exec(m_exec_prefix + item_url + ".html ");
-		// } catch (IOException e1) {
-		//
-		// e1.printStackTrace();
-		// }
-		// }
-		// }
-		// }
-	}
-
-	public static ArrayList<String> loadURLList(String listname) {
-
-		ArrayList<String> returnList = new ArrayList<String>();
+	// Load the "text" for each document. This may be literally the HTML text, or a url. We determine which by looking for a 'text' column in the input CSV
+	// We also need a 'uid' column, to match to the documents we read in the .vec file
+	private void loadText(String text_filename) {
 
 		try {
 
-			
-			CSVReader reader = new CSVReader(new FileReader(listname));
+			// Set up CSV reader with no escape character (instead of \), as Ruby CSV files and RFC 4180 don't use it, and \"" was being incorrectly read.
+			CSVReader reader = new CSVReader(new FileReader(text_filename),
+											 CSVParser.DEFAULT_SEPARATOR, CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.NULL_CHARACTER);
 
-			// iterate over reader.readNext until it returns null
-			String[] line;
-			
-			while ((line = reader.readNext()) != null) {
-				returnList.add(line[0]);
+			// load headers, find 'uid' col, and 'url' colu, or 'text' col if no URL
+			String [] headers = reader.readNext();
+			m_has_urls = false;
+			int contentColIdx = -1, uidColIdx = -1;
+			for (int i=0; i<headers.length; i++) {
+				String colName = headers[i].toLowerCase();
+				
+				if (colName.equals("url")) {
+					contentColIdx = i;
+					m_has_urls= true;
+				} else if (colName.equals("text")) {
+					contentColIdx = i;
+				} else if (colName.equals("uid")) {
+					uidColIdx = i;
+				}
 			}
 			
-/*			BufferedReader breader = new BufferedReader(
-					new FileReader(listname));
-
-			String lineStr = breader.readLine();
-			while (lineStr != null && lineStr.length() > 0) {
-
-				returnList.add(lineStr);
-				lineStr = breader.readLine();
+			// If we have neither text nor URL, we have nothing to show
+			if (contentColIdx == -1) {
+				System.out.println("Warning: could not find text or url column in input file " + text_filename + ", cannot display documents.");
 			}
-
-			breader.close();*/
+			if (uidColIdx == -1) {
+				System.out.println("Warning: could not find uid column in input file " + text_filename + ", cannot display documents.");
+			}
+		
+			// If we have both content and uid columns, load all the docs
+			if ((contentColIdx != -1)  && (uidColIdx != -1)){
+					
+				m_item_texts = new HashMap<String,String>();
+				
+				// iterate over reader.readNext until it returns null
+				String[] line;
+				Integer lineNo = 0;
+				while ((line = reader.readNext()) != null) {
+					//System.out.println("Reading line " + lineNo + ", line number in file is " + line[0]);
+					m_item_texts.put(line[uidColIdx], line[contentColIdx]);
+					
+//					m_item_texts.put(lineNo.toString(), line[contentColIdx]);
+//					int idx = lineNo.intValue();
+//					String vecDocID = m_doclist.getDocIDString(lineNo);
+//					String readDocID = line[uidColIdx];
+					
+					lineNo += 1;
+				}
+			}
 		} catch (Exception e) {
-
-			returnList = null;
 			e.printStackTrace();
 		}
-
-		return returnList;
 	}
 	
-
+	// Returns the text/url of the currently selected doc in m_list. Maps through the uid
+	private String selectedDocumentContent() {
+		Integer selectedDocIndex = (Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex());		
+		String docid = m_doclist.getDocIDString(selectedDocIndex.intValue());
+//		System.out.println("Viewing document id: " + docid);	
+		return m_item_texts.get(docid);
+//		return m_item_texts.get(selectedDocIndex.toString());
+	}
+	
 	public void keyTyped(KeyEvent e) {
 
 	}
@@ -161,12 +138,12 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 
 	}
 
-	/** Handle the key-released event from the text field. */
+	// If we have URLs, enter = open in browser
 	public void keyReleased(KeyEvent e) {
 
-		if (e.getKeyCode() == 10) {
+		if (m_has_urls && (e.getKeyCode() == 10)) {
 
-			String item_url = m_item_urls.get(((Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex())).intValue());
+			String item_url = selectedDocumentContent();
 			try {
 
 				// open the url in the shell
@@ -181,22 +158,19 @@ public class HtmlDispatch extends MouseAdapter implements KeyListener,
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		
+		if (m_item_texts == null)
+			return;					// we never succeeded in loading the document texts/url
+		
 		if( e.getValueIsAdjusting() )
 			return;
 		
-		if( m_list.getSelectedIndex() > -1 ) {
-			
-			Integer itemVal = (Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex());
-    		String item_string = m_item_urls.get(itemVal.intValue());
+		if( m_list.getSelectedIndex() > -1 ) {			
+    		String item_string = selectedDocumentContent();
     		
     		// If the string is a URL, navigate there. Otherwise just consider it straight HTML content and load it
-    		if ((item_string.indexOf("http://") != -1) || (item_string.indexOf("https://") != -1)) {
+    		if (m_has_urls) {
     			m_browser.navigate(item_string);
     		} else {
-    			// If it doesn't look like HTML, wrap in pre-tags
-    			if (item_string.indexOf("<p>") == -1) {
-    				item_string = "<pre>" + item_string + "</pre>";
-    			}
     			m_browser.setHTMLContent(item_string);
     		}
 		}		

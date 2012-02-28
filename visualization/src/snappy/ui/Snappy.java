@@ -489,54 +489,21 @@ public class Snappy extends JFrame implements ChangeListener {
 		// load up the tag file here
 
 		if( tag_filename.length() > 0 ) {
-			
 			tag_table.loadTagFile(tag_filename);
 		}
 		
-		// perform component count and component layout
-		
-//		System.out.print("Performing component count...");
-//		int component_count = graph_manager.countComponents();
-//		System.out.println("Number of components = " + component_count);
-//		System.out.println("done.");
-//		
-//		System.out.print("Performing component layout...");
-//		graph_layouts = new ArrayList<GraphLayout>();
-//		for( TopoTree.TopoTreeNode node : topo_tree.level_lookup.get(0)) {
-//			
-//			if(node.num_points > (int)Math.pow(2, 3) )
-//				graph_layouts.add(new GraphLayout(node,LayoutType.SUMMARY));
-//		}
-//		for( int component = 0; component < component_count; component++ ) {
-//			
-//			System.out.println("Component Size = " + graph_manager.getSubComponents().get(component).size() );
-//			if( graph_manager.getSubComponents().get(component).size() > default_component_bin )
-//				graph_layouts.add(new GraphLayout(graph_manager,component,LayoutType.SUMMARY));
-//		}
-//		System.out.println("done.");
 		
 		// build the initial histograms
 		
 		System.out.print("Building Histograms...");
-//		int[] trashhisto_comp = graph_manager.getComponentHisto();
-//		for( int i = 0; i < trashhisto_comp.length; i++ ) {
-//			System.out.println(""+i+":" + trashhisto_comp[i] );
-//		}
-//		component_slider = new HistSlider(graph_manager.getComponentHisto(),default_component_bin);
-//		distance_slider  = new HistSlider(graph_manager.getHisto(Snappy.DISTANCE_BINS),0.f,1.f,DISTANCE_BINS-1);
-//		distance_slider.isLog = true;
-//		distance_slider.useAbsolute = true;
-//		component_slider.useAbsolute = true;
-//		component_slider.isLog = true;
+
 		
 		tt_control = new TopoTreeControl(topo_tree,graph_manager.getHisto(Snappy.DISTANCE_BINS));
 		tt_control.setTagTable(tag_table);
 		tag_control = new TagControl(tag_table );
 
-//		int[] trashhisto = graph_manager.getHisto(Snappy.DISTANCE_BINS);
 		current_histo = new float[Snappy.DISTANCE_BINS];
 		for(int i = 0; i < Snappy.DISTANCE_BINS; i++ ) {
-//			System.out.println(""+i+":"+trashhisto[i]);
 			current_histo[i] = (i+1)*(1.f / (float)Snappy.DISTANCE_BINS);
 		}
 		System.out.println("done.");
@@ -577,25 +544,30 @@ public class Snappy extends JFrame implements ChangeListener {
 		glimmer_drawer.node_labeller = node_labeller;
 		
 		tag_control.m_docList = doc_list_control;
-		
+
+		System.out.println("Done.");
+
 		// If we have a list of HTML files, create a panel to view them in
 		if( is_url_available ) {
-		
+	
+			System.out.print("Loading document set text...");
+
 			JWebBrowser browser = new JWebBrowser();
 			browser.setBarsVisible(false);
 			browser.setStatusBarVisible(false);
-			browser.navigate("http://www.google.com");
+//			browser.navigate("http://www.google.com");
 			html_panel_holder = browser;
 	
 			html_dispatch = new HtmlDispatch(	doc_list_control.item_jlist, 
-												HtmlDispatch.loadURLList(url_list_filename),
+												nz_data,
+												url_list_filename,
 												browser);			
 			doc_list_control.addKeyListener(html_dispatch);
+
+			System.out.println("Done.");
 		}
 		
 
-//		graph_drawer = new GraphDrawer( node_labeller );
-		System.out.println("done.");
 		
 		// lay out the components
 		
