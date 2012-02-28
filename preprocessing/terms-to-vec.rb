@@ -62,20 +62,19 @@ CSV.foreach(infile_name, :headers=>true) do |row|
 
   # Found new doc?
   if doc_id != last_doc_id
-    last_doc_id = doc_id
     
     # write previous document out
     if last_doc_id != nil
       write_doc(last_doc_id, cur_doc_vector,vec_outfile)
     end
     cur_doc_vector.clear
+    last_doc_id = doc_id
 
     # break out of the loop if we've now seen as many docs as we were asked to read
     if ARGV.length > minargs && docs_encountered == ARGV[minargs].to_i
       break
     end
     docs_encountered+=1
-    
   end
     
   # if we haven't encountered this term before, assign it an ID
