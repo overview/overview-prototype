@@ -51,9 +51,9 @@ CSV.foreach(ARGV[0], :headers=>true) do |row|
   
   # process only if the uid hasn't been seen before
   if (uid != nil)
-    uid.downcase!
     uid.strip!
   end  
+
   if tfidf.docs.include?(uid)
     puts("Warning: UID " + uid.to_s + " is repeated, skipping.")
   elsif (uid == "") || (uid == nil)

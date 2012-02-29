@@ -21,6 +21,8 @@ end
 infile_name = ARGV[0]
 outfile_name = ARGV[1]
 
+puts("Cleaning up...")
+
 wrote_header = false
 docs_read = 0
 
@@ -36,14 +38,12 @@ CSV.open(outfile_name,"w") do |f|
     else
       f << ['uid','text'] unless wrote_header
       
-      # if the text isn't already HTML, replace line breaks with <p>
+      # if the text isn't already HTML, replace double line breaks with <p>
       text = row['text']
       if !IsHTML(text)
-        #grafs = text.split('\n')
-        #text = grafs.inject('') { |string, graf| string += "<p>" + graf + "</p>" }
-        htmltext = '';
-        text.each_line { |line| htmltext += '<p>' + line + '</p>' }
-        text = htmltext
+        text.gsub!(/[ \t\f]*\n/,"\n")    # clean up blank lines that have whitespace and nothing else before newline
+        grafs = text.split("\n\n")       # split on double blank line
+        text = grafs.inject('') { |string, graf| string += "<p>" + graf + "</p>" }
       end   
       f << [uid, text]
     end

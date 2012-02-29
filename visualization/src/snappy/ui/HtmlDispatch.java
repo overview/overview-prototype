@@ -124,9 +124,7 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 	private String selectedDocumentContent() {
 		Integer selectedDocIndex = (Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex());		
 		String docid = m_doclist.getDocIDString(selectedDocIndex.intValue());
-//		System.out.println("Viewing document id: " + docid);	
 		return m_item_texts.get(docid);
-//		return m_item_texts.get(selectedDocIndex.toString());
 	}
 	
 	public void keyTyped(KeyEvent e) {
