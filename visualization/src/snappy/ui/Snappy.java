@@ -653,20 +653,6 @@ public class Snappy extends JFrame implements ChangeListener {
 		this.pack();
 		this.setVisible(true);
 	}
-	
-	public static void main( final String[] args ) {
-		
-		NativeInterface.open();  
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-        	Snappy snappy = null;
-            public void run() {
-            	
-            	snappy = new Snappy(args);
-//            	snappy.setSize(new Dimension(1024,700));
-            }
-        } );
-        NativeInterface.runEventPump(); 
-	}
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
