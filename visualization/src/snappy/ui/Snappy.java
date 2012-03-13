@@ -548,6 +548,7 @@ public class Snappy extends JFrame implements ChangeListener {
 		System.out.println("Done.");
 
 		// If we have a list of HTML files, create a panel to view them in
+//		is_url_available = false;
 		if( is_url_available ) {
 	
 			System.out.print("Loading document set text...");
