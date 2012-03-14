@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.*;
 
 import javax.swing.JList;
 import javax.swing.JTree;
@@ -167,7 +168,28 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
     		
     		// If the string is a URL, navigate there. Otherwise just consider it straight HTML content and load it
     		if (m_has_urls) {
-    			m_browser.navigate(item_string);
+    			
+    			// If the URL is for document cloud, create a custom embed code (get rid of the sidebar etc.) 
+    			// Yes, hacky. Might only work right for the URLs in the Iraq contractor dataset
+    		    Pattern p = Pattern.compile("(https?://www.documentcloud.org/documents/.+)\\.html#document/p(\\d+)");
+    		    Matcher m = p.matcher(item_string);
+    		    
+    		    if (m.find()) {
+    		    	
+    		    	String embed_cod = "<div id=\"foo\" class=\"DV-container\"></div>" + 
+    		    					   "<script src=\"http://s3.documentcloud.org/viewer/loader.js\"></script>" +
+    		    					   "<script>" +
+    		    					   		"DV.load('" + m.group(1) + ".js', {" + 
+    		    					   					"sidebar: false," +
+    		    					   					"page: " + m.group(2) + "," + 
+    		    					   					"container: \"#foo\"" + 
+    		    	  						"});" +
+    		    	  					"</script>";
+
+    		    	m_browser.setHTMLContent(embed_cod);
+    		    } else {
+    		    	m_browser.navigate(item_string); // not a DocumentCloud URL, just navigate as usual
+    		    }
     		} else {
     			m_browser.setHTMLContent(item_string);
     		}
