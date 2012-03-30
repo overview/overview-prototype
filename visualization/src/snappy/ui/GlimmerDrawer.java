@@ -120,7 +120,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				int myWidth = (width - insets.left) - insets.right;
 				int myHeight = (height - insets.top) - insets.bottom;
 				
-				start_stop_button.setBounds(insets.left, insets.top, myWidth/5 - 5, myHeight);
+				start_stop_button.setBounds(insets.left, insets.top, Math.max(myWidth/5,80) - 5, myHeight);
 
 				int selbutton_w = (int)select_button.getPreferredSize().getWidth();
 				int panbutton_w = (int)pan_button.getPreferredSize().getWidth();
@@ -238,7 +238,10 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 
 		public GlimmerCanvas(GlimmerDrawer glimmerDrawer) {
 			gd = glimmerDrawer;
+			InteractionLogger.log("MDS PAN TO",Integer.toString(x_offset) + "," + Integer.toString(y_offset));
+			InteractionLogger.log("MDS ZOOM TO",Float.toString(x_scaler));
 		}
+		
 		GlimmerDrawer gd = null;
 		
 		int x_offset = 0;
@@ -275,6 +278,12 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				
 				is_dragging_box = false;
 				redraw();
+				
+				if (gd.pan_button.isSelected()) {
+					InteractionLogger.log("MDS PAN TO",Integer.toString(x_offset) + "," + Integer.toString(y_offset));
+				} else if (gd.zoom_button.isSelected()) {	
+					InteractionLogger.log("MDS ZOOM TO",Float.toString(x_scaler));
+				}
 			}
 		}
 		
@@ -343,6 +352,7 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				}
 				
 				// update the listed items
+				InteractionLogger.log("MDS DRAG SELECT");
 				m_tag_table.getListedTag().setItems(bounded_items);				
 				m_tag_table.promoteTag(m_tag_table.getListedTag());
 				
@@ -408,13 +418,11 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				}
 				
 				// update the item tag
-				
-				m_tag_table.getListedTag().removeItem( new ArrayList<Integer>(m_tag_table.getListedTag().items) );
-
+				InteractionLogger.log("MDS CLICK SELECT");				
 				if(min_idx > -1) {	
 					ArrayList<Integer> itemToAdd = new ArrayList<Integer>();
 					itemToAdd.add( min_idx );
-					m_tag_table.getListedTag().addItem( itemToAdd );
+					m_tag_table.getListedTag().setItems( itemToAdd );
 				}
 				
 				m_tag_table.promoteTagSilent(m_tag_table.getListedTag());

@@ -121,11 +121,14 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 		}
 	}
 	
-	// Returns the text/url of the currently selected doc in m_list. Maps through the uid
-	private String selectedDocumentContent() {
+	private String selectedDocumentID() {
 		Integer selectedDocIndex = (Integer) m_list.getModel().getElementAt(m_list.getSelectedIndex());		
-		String docid = m_doclist.getDocIDString(selectedDocIndex.intValue());
-		return m_item_texts.get(docid);
+		return m_doclist.getDocIDString(selectedDocIndex.intValue());
+	}
+	
+	// Returns the text/url of the currently selected doc in m_list. Maps through the uid
+	private String selectedDocumentContent(String docID) {
+		return m_item_texts.get(docID);
 	}
 	
 	public void keyTyped(KeyEvent e) {
@@ -142,15 +145,16 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 
 		if (m_has_urls && (e.getKeyCode() == 10)) {
 
-			String item_url = selectedDocumentContent();
+			String item_url = selectedDocumentContent(selectedDocumentID());
 			try {
 
 				// open the url in the shell
-				System.out.println("Executing : open " + item_url);
 				m_runtime.exec("open " + item_url);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			
+			InteractionLogger.log("OPEN DOC IN BROWSER",item_url);
 		}
 	}
 
@@ -163,8 +167,11 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 		if( e.getValueIsAdjusting() )
 			return;
 		
-		if( m_list.getSelectedIndex() > -1 ) {			
-    		String item_string = selectedDocumentContent();
+		if( m_list.getSelectedIndex() > -1 ) {	
+			String docID = selectedDocumentID();
+    		String item_string = selectedDocumentContent(docID);
+    		
+    		InteractionLogger.log("VIEW DOC",docID);
     		
     		// If the string is a URL, navigate there. Otherwise just consider it straight HTML content and load it
     		if (m_has_urls) {

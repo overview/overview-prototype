@@ -230,7 +230,10 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 			
 			if( newTagField.getText().length() > 0 ) {
 
-				m_ttable.newTag(newTagField.getText());
+				Tag t = m_ttable.newTag(newTagField.getText());
+
+				// Add all listed items into new tag when creating
+				t.addItem(new ArrayList<Integer>(m_ttable.getListedTag().items));
 			}
 		}
 		
@@ -444,13 +447,17 @@ public class TagControl extends JPanel implements ActionListener, TagChangeListe
 				public void mouseClicked(MouseEvent arg0) {
 
 					//System.out.println("TAG CLICK");
+					InteractionLogger.log("SELECT TAG",m_t.name);
+
 					lastpoint = m_tagList.t_list.getViewport().getViewPosition();
 					
 					// When a tag is clicked, copy its contents into the listed tag, and promote 
 					m_ttable.getListedTag().setItems(new ArrayList<Integer>(m_t.items));
 					m_ttable.promoteTag(m_t);
+					
 				}
 			});
+			
 			if( isTop ) {
 				
 				this.setBackground(m_t.tag_color);

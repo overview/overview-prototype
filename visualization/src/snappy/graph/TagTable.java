@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import snappy.ui.InteractionLogger;
 import snappy.ui.PrettyColors;
 import snappy.data.NZData;
 
@@ -80,6 +81,8 @@ public class TagTable {
 			String[] fields = file_line.split("::");			
 			name = fields[0];
 			
+			InteractionLogger.log("NEW TAG FROM FILE", name);
+
 			String[] color_fields = fields[1].split(",");
 			tag_color = new Color(Integer.parseInt(color_fields[0]),
 							Integer.parseInt(color_fields[1]),
@@ -100,7 +103,7 @@ public class TagTable {
 				}
 				
 				addItem(item_input);
-			}
+			}		
 		}
 
 		public void addComponent( TopoTreeNode node ) {
@@ -147,15 +150,20 @@ public class TagTable {
 			
 		}
 		
+		
 		public void addItem( ArrayList<Integer> add_items ) {
+			addItemNoLog(add_items);
+			logTagItems("ADD TAG ITEMS",add_items);
+		}
+
+		public void addItemNoLog( ArrayList<Integer> add_items ) {
 			
 			items.addAll(add_items);
 			
 			// let's update the components
 			
 			Stack<TopoTreeNode> stack = new Stack<TopoTreeNode>();
-			for( TopoTreeNode root : m_tree.roots ) {
-				
+			for( TopoTreeNode root : m_tree.roots ) {				
 				stack.push(root);
 			}
 			while( ! stack.isEmpty() ) {
@@ -184,8 +192,16 @@ public class TagTable {
 		}
 
 		public void setItems( ArrayList<Integer> add_items ) {
+			if (add_items == null || add_items.size() == 0) {
+				if (items.size()>0)
+					InteractionLogger.log("CLEAR TAG",this.name);				// Log as clearing only when we're not already clear
+			} else {
+				logTagItems("SET TAG ITEMS", add_items);						// otherwise, log as # of items		
+			}
+
 			clear();
-			addItem(add_items);
+			if (add_items != null)
+				addItemNoLog(add_items);			
 		}
 		
 		public void clear() {
@@ -261,6 +277,8 @@ public class TagTable {
 				
 				removeComponent(node);
 			}
+			
+			logTagItems("REMOVE TAG ITEMS",rem_items);
 		}
 		
 		public void removeComponent( TopoTreeNode node ) {
@@ -298,6 +316,18 @@ public class TagTable {
 			}
 		}
 		
+		// Used to log add/delete of tags
+		private void logTagItemsEvenIfNoItems(String type, ArrayList<Integer> items) {
+			int nItems = items != null ? items.size() : 0;
+			InteractionLogger.log(type, this.name + ", " + nItems + " items");
+		}
+		
+		// suppresses logging if null/empty items
+		private void logTagItems(String type, ArrayList<Integer> items) {
+			if (items != null && items.size()>0)
+				InteractionLogger.log(type, this.name + ", " + items.size() + " items");
+		}
+		
 		public Tag( String name, Color tag_color ) {
 			
 			this.name = name;
@@ -306,6 +336,9 @@ public class TagTable {
 			items = new HashSet<Integer>();
 			full_components = new HashSet<TopoTreeNode>();
 			part_components = new HashSet<TopoTreeNode>();
+			
+			if (name != "") 
+				InteractionLogger.log("NEW TAG", name);
 		}
 		
 		public String toString() {
@@ -446,16 +479,20 @@ public class TagTable {
 		
 		// notify tag listeners to redraw
 		notifyListenersTagsChanged();
+
+		InteractionLogger.log("DELETE TAG", tag.name);
 	}
 	
-	public void newTag( String tagName ) {
+	public Tag newTag( String tagName ) {
 		
 		Tag tag = new Tag( tagName, PrettyColors.colorFromInt(tag_queue.size()+1) );
 		tag_queue.add(tag);
 		tag_order_added.add(tag);
-		
+				
 		// notify tag listeners to redraw
-		notifyListenersTagsChanged();  
+		notifyListenersTagsChanged();
+		
+		return tag;
 	}
 	
 	/*
@@ -484,6 +521,8 @@ public class TagTable {
 	public void loadTagFile( String tagFileName ) {
 		
 		m_tagFilename = tagFileName;
+		
+		InteractionLogger.log("LOAD TAG FILE",tagFileName);
 		
 		try{
 			

@@ -109,28 +109,10 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 			hilightedNode.hilighted = true;
 			
 			// add the new node to the selection
-			
+			InteractionLogger.log("TREE VIEW SELECT NODE");
 			m_ttable.promoteTagSilent( m_ttable.getListedTag() );
-
-			while( m_ttable.topTag().full_components.size() > 0 ) {
-
-				TopoTreeNode n = null;
-				for( TopoTreeNode k : m_ttable.topTag().full_components ) {
-					if( n == null ) {
-						n = k;
-					}
-					else if( n.num_points < k.num_points ) {
-						n = k;
-					}
-				}
-				
-				m_ttable.topTag().removeComponent(n);
-			}
-			m_ttable.topTag().addComponent(node);
-			for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-				
-				tagChangeListener.tagsChanged();
-			}		
+			m_ttable.getListedTag().setItems(node.component);
+			m_ttable.notifyListenersTagsChanged();
 			redraw();
 		}
 		else {
@@ -142,26 +124,10 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 			hilightedNode.hilighted = false;
 			hilightedNode = null;
 			
-			// 
+			InteractionLogger.log("TREE VIEW CLEAR SELECTION");
 			m_ttable.promoteTagSilent( m_ttable.getListedTag() );
-			while( m_ttable.topTag().full_components.size() > 0 ) {
-
-				TopoTreeNode n = null;
-				for( TopoTreeNode k : m_ttable.topTag().full_components ) {
-					if( n == null ) {
-						n = k;
-					}
-					else if( n.num_points < k.num_points ) {
-						n = k;
-					}
-				}
-				
-				m_ttable.topTag().removeComponent(n);
-			}
-			for( TagChangeListener tagChangeListener : tagChangeListeners ) {
-				
-				tagChangeListener.tagsChanged();
-			}		
+			m_ttable.getListedTag().setItems(null);
+			m_ttable.notifyListenersTagsChanged();
 			redraw();
 		}
 //		System.out.println("End update hilight");
@@ -178,7 +144,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 		
 		m_tt = tt;
 
-		ignore_component_size = (int) Math.pow(2, sel_prune);
+		setIgnoreComponenetSize((int) Math.pow(2, sel_prune));
 		this.bins = bins;
 		levels = bins.length;
 		changeListeners = new ArrayList<ChangeListener>();
@@ -229,6 +195,7 @@ public class TopoTreeControl extends PApplet implements ComponentListener,
 	public void setIgnoreComponenetSize(int x) {
 
 		ignore_component_size = x;
+		InteractionLogger.log("TREE VIEW PRUNING",Integer.toString(x));
 		redraw();
 	}
 

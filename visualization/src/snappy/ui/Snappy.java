@@ -408,6 +408,7 @@ public class Snappy extends JFrame implements ChangeListener {
 		if( is_sparse ) {
 			
 			System.out.print("Loading Sparse Data...");
+			InteractionLogger.log("LAUNCH",nonzero_data_filename);
 			try {
 				
 				nz_data = SparseReader.readNZData( new FileReader(nonzero_data_filename) );
