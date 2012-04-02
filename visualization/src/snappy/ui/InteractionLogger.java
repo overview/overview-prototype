@@ -14,6 +14,12 @@ public class InteractionLogger {
 	   private static CSVWriter csv=null;
 	   private static DateFormat df=null;
 	   
+	   public static boolean isWindows() { 
+			String os = System.getProperty("os.name").toLowerCase();
+			// windows
+			return (os.indexOf("win") >= 0);
+	   }
+	   
 	   protected InteractionLogger() {
 	      // Exists only to defeat instantiation.
 	   }
@@ -35,6 +41,14 @@ public class InteractionLogger {
 			   Date date = new Date();
 			   String [] line = {df.format(date), type, params};
 			   csv.writeNext(line);
+			   
+			   // grrr.. windows never seems to make it out of the loop in MainHolder, to where we close the log, so flush, baby, flush!
+			   if (isWindows()) {
+				   try {
+					   csv.flush();
+				   } catch (IOException e) {
+				   }
+			   }
 		   }
 	   }
 	   

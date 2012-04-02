@@ -52,7 +52,6 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 		return (os.indexOf("win") >= 0);
  
 	}
- 
 
 	public HtmlDispatch(JList list, 
 						NZData doclist,
