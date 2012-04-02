@@ -183,7 +183,8 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
     		    
     		    if (m.find()) {
     		    	
-    		    	String embed_cod = "<div id=\"foo\" class=\"DV-container\"></div>" + 
+    		    	String embed_cod = "<!DOCTYPE html><head></head><body>" +
+    		    					   "<div id=\"foo\" class=\"DV-container\"></div>" + 
     		    					   "<script src=\"http://s3.documentcloud.org/viewer/loader.js\"></script>" +
     		    					   "<script>" +
     		    					   		"DV.load('" + m.group(1) + ".js', {" + 
@@ -191,7 +192,7 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
     		    					   					"page: " + m.group(2) + "," + 
     		    					   					"container: \"#foo\"" + 
     		    	  						"});" +
-    		    	  					"</script>";
+    		    	  					"</script></body>";
 
     		    	m_browser.setHTMLContent(embed_cod);
     		    } else {
