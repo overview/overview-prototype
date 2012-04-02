@@ -30,6 +30,9 @@ import snappy.data.NZData;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVParser;
 
+import java.net.URI;
+import java.awt.Desktop;
+
 /*
  * Receives double click events and responds to them by making a system call to open up the 
  * corresponding URL. 
@@ -43,6 +46,13 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 	private HashMap<String,String> m_item_texts = null;
 	private boolean m_has_urls = false;
 
+	public static boolean isWindows() { 
+		String os = System.getProperty("os.name").toLowerCase();
+		// windows
+		return (os.indexOf("win") >= 0);
+ 
+	}
+ 
 
 	public HtmlDispatch(JList list, 
 						NZData doclist,
@@ -146,14 +156,16 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 		if (m_has_urls && (e.getKeyCode() == 10)) {
 
 			String item_url = selectedDocumentContent(selectedDocumentID());
-			try {
 
-				// open the url in the shell
-				m_runtime.exec("open " + item_url);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			
+		    java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+            try {
+                java.net.URI uri = new java.net.URI( item_url );
+                desktop.browse( uri );
+            }
+            catch ( Exception ex ) {
+                System.err.println( ex.getMessage() );
+            }
+            
 			InteractionLogger.log("OPEN DOC IN BROWSER",item_url);
 		}
 	}
@@ -181,7 +193,8 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
     		    Pattern p = Pattern.compile("(https?://www.documentcloud.org/documents/.+)\\.html#document/p(\\d+)");
     		    Matcher m = p.matcher(item_string);
     		    
-    		    if (m.find()) {
+    		    // The embed code below seems to fail on Windows. Because Windows is fail. sigh.
+    		    if (!isWindows() && m.find()) {
     		    	
     		    	String embed_cod = "<!DOCTYPE html><head></head><body>" +
     		    					   "<div id=\"foo\" class=\"DV-container\"></div>" + 

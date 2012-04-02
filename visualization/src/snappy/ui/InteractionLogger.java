@@ -27,6 +27,7 @@ public class InteractionLogger {
 		   }
 		   csv = new CSVWriter(file);
 	       df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+	       System.out.println("Opened log file " + filename);
 	   }
 	   
 	   public static void log(String type, String params) {
@@ -47,5 +48,6 @@ public class InteractionLogger {
 			   csv.close();
 		   } catch (IOException io) {
 		   }
+	       System.out.println("Closed log file");
 	   }
 	}
