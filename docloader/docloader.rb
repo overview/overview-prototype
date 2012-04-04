@@ -1,4 +1,4 @@
-# A short uploading script for documentcloud
+﻿# A short uploading script for documentcloud
 require 'rubygems'
 require 'rest_client'
 require 'ostruct'
@@ -108,7 +108,7 @@ OptionParser.new do |opts|
     	options.project = v
   	end
   
-  	opts.on("-o", "--overview csv-filename", "Write CSV for use with Overview") do |v|
+  	opts.on("-o", "--overview CSV-FILENAME", "Write CSV for use with Overview") do |v|
     	options.overviewCSVfilename = v
   	end
 
@@ -122,6 +122,7 @@ end.parse!
 
 unless dirname = ARGV[0]
 	puts "ERROR: no directory name specified"
+	exit
 end
 	
 unless options.upload || options.overviewCSVfilename

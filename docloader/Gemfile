@@ -3,4 +3,4 @@ source "https://rubygems.org"
 
 gem "rest-client"
 gem "docsplit"
-gem "json"
+gem "json_pure"
