@@ -43,7 +43,7 @@ def scanDir(dirname, matchfn, callfn, recurse)
 		fullfilename = dirname + "/" + filename;
 		
 		if File.directory?(fullfilename)
-			if filename != "." && filename != ".."		# don't infinite loop kthx
+			if recurse && filename != "." && filename != ".."		# don't infinite loop kthx
 				scanDir(fullfilename, matchfn, callfn, recurse)
 			end
 		elsif matchfn.call(filename)
