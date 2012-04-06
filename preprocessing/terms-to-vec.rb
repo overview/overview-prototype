@@ -4,7 +4,13 @@
 
 # Jonathan Stray, December 2010 - December 2011
 
-require 'csv'
+if RUBY_VERSION < "1.9"
+  require "rubygems"
+  require "faster_csv"
+  CSV = FCSV
+else
+  require "csv"
+end
 
 # Write document vector
 # vector is a hash of term ID -> tfidf pairs, these need to be sorted, normalized, and formatted to file

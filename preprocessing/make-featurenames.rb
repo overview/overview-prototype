@@ -1,6 +1,12 @@
 # simple little file that sorts on first col, then outputs only second
 
-require 'csv'
+if RUBY_VERSION < "1.9"
+  require "rubygems"
+  require "faster_csv"
+  CSV = FCSV
+else
+  require "csv"
+end
 
 # Usage. Can specify files (and a limit on rows) but not 
 if ARGV.length < 2

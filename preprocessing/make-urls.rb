@@ -5,7 +5,13 @@
 # Overview prototype
 # Jonathan Stray, Feb 2012
 
-require 'csv'
+if RUBY_VERSION < "1.9"
+  require "rubygems"
+  require "faster_csv"
+  CSV = FCSV
+else
+  require "csv"
+end
 
 # cheap and effective check for HTML formatting
 def IsHTML(text)

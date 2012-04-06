@@ -3,7 +3,14 @@
 # Looks for text in "text" column, and optional unique ID in "id" column. 
 # Assigns sequential UIDs if missing
 
-require 'csv'
+if RUBY_VERSION < "1.9"
+  require "rubygems"
+  require "faster_csv"
+  CSV = FCSV
+else
+  require "csv"
+end
+
 #require 'stemmer'
 require 'tf-idf_csv.rb'
 require 'lex.rb'
@@ -37,7 +44,6 @@ lexer.load_stopwords(File.dirname(__FILE__) + "/stopwords.csv")
 
 # Read each row of the input file, parse the text field into terms, add the doc to the TFIDF database
 tfidf = Tf_Idf_CSV.new
-csv_out = CSV.open(ARGV[1],"w")
 
 CSV.foreach(ARGV[0], :headers=>true) do |row|
   

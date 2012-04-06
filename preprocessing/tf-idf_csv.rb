@@ -1,4 +1,3 @@
-require 'csv'
 require 'logger'
 
 def count_if_gte(a,b)

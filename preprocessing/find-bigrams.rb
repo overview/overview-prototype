@@ -8,8 +8,14 @@
 # - split on spaces
 # - strip punctuation
 
+if RUBY_VERSION < "1.9"
+  require "rubygems"
+  require "faster_csv"
+  CSV = FCSV
+else
+  require "csv"
+end
 
-require 'csv'
 require 'lex.rb'
 
 # algorithm constants

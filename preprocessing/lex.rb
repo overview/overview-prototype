@@ -1,5 +1,4 @@
 require 'set'
-require 'csv'
 #require 'stemmer'
 
 #class String
