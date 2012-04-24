@@ -82,6 +82,7 @@ class Lexer
     text.gsub!(/<[^>]*>/, '') # strip HTML, I'm not sure how/why HTML ended up in the text anyway
 
     # otherwise, allow only a small set of characters
+    text.gsub!(/\302\240/,' ') # turn non-breaking spaces (UTF-8) into spaces 
     text.tr!('"()[]:,',' ')   # turn certain punctation into spaces
     text.gsub!(/[^0-9a-z\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
     text.gsub!(/\s\s*/, ' ')  # collapse runs of spaces into single spaces
