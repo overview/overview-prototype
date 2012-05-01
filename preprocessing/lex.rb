@@ -79,10 +79,20 @@ class Lexer
     text.gsub!("amp;","")
     text.gsub!("apos;","'")
     text.gsub!("''","'")    # double '' to single '
-    text.gsub!(/<[^>]*>/, '') # strip HTML, I'm not sure how/why HTML ended up in the text anyway
+    text.gsub!(/<[^>]*>/, '') # strip things inside HTML tags
 
-    # otherwise, allow only a small set of characters
-    text.gsub!(/\302\240/,' ') # turn non-breaking spaces (UTF-8) into spaces 
+    # Turn non-breaking spaces into spaces. This is more complex than it should be, 
+    # due to Ruby version and platform character encoding differences
+    if RUBY_VERSION < "1.9"
+      text.gsub!(/\302\240/,' ') 
+    else
+      if text.encoding.name == "IBM437"
+        text.force_encoding("UTF-8")  # Windows Ruby seems to always read in IBM437
+      end
+      text.gsub!("\u00A0", " ") # turn non-breaking spaces (UTF-8) into spaces 
+    end
+
+    # allow only a small set of characters
     text.tr!('"()[]:,',' ')   # turn certain punctation into spaces
     text.gsub!(/[^0-9a-z\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
     text.gsub!(/\s\s*/, ' ')  # collapse runs of spaces into single spaces
