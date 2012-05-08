@@ -39,13 +39,19 @@ CSV.open(outfile_name,"w") do |f|
     uid = (row['uid'] != nil) ? row['uid'] : docs_read.to_s
 
     if row['url'] != nil
+      # URL col exists, so write URLs
       f << ['uid','url'] unless wrote_header
       f << [uid, row['url']]
     else
+      # No URL, write text directly in output
       f << ['uid','text'] unless wrote_header
       
-      # if the text isn't already HTML, replace double line breaks with <p>
       text = row['text']
+      if (text == nil) then   # some documents may be empty
+        text = ""
+      end
+
+      # if the text isn't already HTML, replace double line breaks with <p>
       if !IsHTML(text)
         text.gsub!(/[ \t\f]*\n/,"\n")    # clean up blank lines that have whitespace and nothing else before newline
         grafs = text.split("\n\n")       # split on double blank line
