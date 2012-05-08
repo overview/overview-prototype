@@ -1,4 +1,4 @@
-﻿# A short uploading script for documentcloud
+# A short uploading script for documentcloud
 require 'rubygems'
 require 'rest_client'
 require 'ostruct'
@@ -60,14 +60,24 @@ end
 
 
 # upload/extract text from a single file
+# precondition: File.exists?(filename)
 def processFile(filename, options)
 	puts "Processing #{filename}"
 
-	url = nil	
+	# Either upload the file to DocumentCloud and get the resulting URL, 
+	# or if not uploaded 8we just make a file:// URL
+	# NB: we make the UID here, using the URL if uploaded but the *relative* filename if local
+	# Otherwise saved tag files would never be portable between computers
+	url = nil
+	digest = nil	
 	if options.upload
 		result = DC.upload(options.username, options.password, filename, options.project)
 		url = result["canonical_url"]
-		puts url
+		#puts url
+		digest = Digest::MD5.hexdigest(url)
+	else
+		url = "file://" + File.expand_path(filename)
+		digest = Digest::MD5.hexdigest(filename)
 	end
 	
 	if options.overviewCSVfilename
@@ -75,11 +85,8 @@ def processFile(filename, options)
 		Docsplit.extract_text(filename, :ocr => false, :output => "extracted-text")
 		text = File.open("extracted-text/" + File.basename(filename, File.extname(filename)) + ".txt").read
 		#puts text
-		if url 
-			options.csv << [text, Digest::MD5.hexdigest(url), url]
-		else
-			options.csv << [text]
-		end
+
+		options.csv << [text, digest, url]
 	end
 end
 
@@ -139,11 +146,7 @@ end
 # Open output CSV filename, if we're processing for Overview
 if options.overviewCSVfilename
 	options.csv = CSV.open(options.overviewCSVfilename,"w")
-	if options.upload
-		options.csv << ["text", "uid", "url"]
-	else
-		options.csv << ["text"]
-	end		
+	options.csv << ["text", "uid", "url"]
 end
 
 # And we're ready. Iterate, possibly recursively, through directory in question
