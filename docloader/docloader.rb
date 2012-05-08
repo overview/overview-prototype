@@ -1,4 +1,13 @@
-# A short uploading script for documentcloud
+# Scan a directory for PDF files (possibly recursively),
+# optionally upload them to a DocumentCloud account,
+# create a .CSV file for use with Overview
+#
+# Example usage:
+#    ruby docloader.rb dir-full-of-PDFs -o output.csv
+#    ruby docloader.rb dir-full-of-PDFs -l -u DOCCLOUD-USERNAME -p DOCCLOUD-PASSWORD -o output.csv
+#
+# Requires docsplit, http://documentcloud.github.com/docsplit/ 
+ 
 require 'rubygems'
 require 'rest_client'
 require 'ostruct'
