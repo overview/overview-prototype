@@ -31,6 +31,8 @@ public class mainHolder {
         } );
 		
         NativeInterface.runEventPump(); 
+        
+		InteractionLogger.log("SHUTDOWN");
         InteractionLogger.closeLog();
 	}
 }

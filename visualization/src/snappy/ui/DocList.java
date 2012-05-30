@@ -158,6 +158,7 @@ public class DocList extends JPanel implements ListSelectionListener,
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				InteractionLogger.log("SELECT RANDOM");
 				int item = rand.nextInt(item_jlist.getModel().getSize());
 				item_jlist.setSelectedIndex(item);
 				item_jlist.ensureIndexIsVisible(item);

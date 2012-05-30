@@ -554,6 +554,8 @@ public class TagTable {
 	 */
 	public void saveTagFile( String tagFileName ) {
 		
+		InteractionLogger.log("SAVE TAG FILE",tagFileName);
+		
 		try {
 			m_tagFilename = tagFileName;
 			FileWriter fw = new FileWriter(m_tagFilename);

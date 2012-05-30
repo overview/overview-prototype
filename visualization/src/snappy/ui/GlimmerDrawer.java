@@ -150,17 +150,17 @@ public class GlimmerDrawer extends JPanel implements TagChangeListener, ChangeLi
 				synchronized (m_layout_thread) {
 
 					if (!m_layout_thread.isAlive()) {
+						InteractionLogger.log("START CLUSTERING");
 						start_stop_button.setText("STOP");
 						is_paused = false;
 						m_layout_thread.start();
 					} else {
 						is_paused = !is_paused;
 						if (is_paused) {
-
+							InteractionLogger.log("STOP CLUSTERING");
 							start_stop_button.setText("Cluster!");
-						}
-						else {
-							
+						} else {
+							InteractionLogger.log("START CLUSTERING");
 							start_stop_button.setText("STOP");
 							m_layout_thread.notify();
 						}
