@@ -9,6 +9,7 @@ The quick version:
 
 * You will need Ruby and Java installed.
 * Overview requires the full text of all input documents in a single CSV file, ```myfile.csv``` (see format below)
+* There are sample document set CSV files available from https://github.com/overview/overview-sample-files
 * First, preprocess the CSV file: ```preprocess.sh myfile```
 * Then fire up the visualization: ```visualization.sh myfile```
 
