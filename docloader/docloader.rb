@@ -14,7 +14,6 @@ require 'ostruct'
 require 'optparse'
 require 'uri'
 require 'Digest'
-require 'DocSplit'
 require 'csv'
 require 'json'
 
@@ -45,12 +44,32 @@ module DC
 	end
 end
 
+# extract text from specified PDF
+# We use pdftotext. On Windows, we expect it to be located where we are
+def extractTextFromPDF(filename)
+	if ENV['OS'] == "Windows_NT"
+		pdftotextexec = File.expand_path(File.dirname(__FILE__)) + "/pdftotext.exe"
+	else
+		pdftotextexec = "pdftotext"
+	end
+	text = `"#{pdftotextexec}" "#{filename}" -`
+end
+
+# extract text from specified file
+# Format dependent
+def extractTextFromFile(filename)
+	if File.extname == ".pdf"
+		extractTextFromPDF(filename)
+	elsif File.extname == ".txt"
+		File.open(filename).read
+	end
+end
+
 # Recursively scan a directory structure for matching files, process each one
 # Execute callfn for each file in direname where matchfn returns true, recurse into dirs if recurse is true
 def scanDir(dirname, matchfn, callfn, recurse)
 	Dir.foreach(dirname) do |filename|
 		fullfilename = dirname + "/" + filename;
-		
 		if File.directory?(fullfilename)
 			if recurse && filename != "." && filename != ".."		# don't infinite loop kthx
 				scanDir(fullfilename, matchfn, callfn, recurse)
@@ -64,7 +83,7 @@ end
 
 # Based on file extension, is this a document file? Potentially could include all file types that docsplit can read
 def matchFn(filename)
-	return [".txt", ".pdf", ".doc"].include? File.extname(filename)
+	return [".txt", ".pdf"].include? File.extname(filename)
 end
 
 
@@ -91,10 +110,8 @@ def processFile(filename, options)
 	
 	if options.overviewCSVfilename
 		# extract file text, append to Overview csv
-		Docsplit.extract_text(filename, :ocr => false, :output => "extracted-text")
-		text = File.open("extracted-text/" + File.basename(filename, File.extname(filename)) + ".txt").read
+		text = extractTextFromPDF(filename)
 		#puts text
-
 		options.csv << [text, digest, url]
 	end
 end
