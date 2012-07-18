@@ -24,4 +24,4 @@ fi
 ruby -I $RUBYDIR $RUBYDIR/docloader.rb $1 -o $2.csv -r
 
 # preprocess those suckers
-#$BASEDIR/preprocess.sh $2
+$BASEDIR/preprocess.sh $2
