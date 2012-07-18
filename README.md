@@ -18,7 +18,7 @@ The quick version:
 * Windows: use the batch files ```something.bat``` instead of the shell scripts ```something.sh```
 * Linux: replace visualization/lib/swt.jar with the appropriate version for your operating system.
 
-# Loading up a document set
+# Loading your own documents
 Again, see http://overview.ap.org/blog/2012/02/getting-started-with-the-overview-prototype/
 
 * If you have a folder full of .pdf or .txt files, use the ```loadpdf.sh``` script
