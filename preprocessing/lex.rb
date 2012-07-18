@@ -83,11 +83,19 @@ class Lexer
 
     # Turn non-breaking spaces into spaces. This is more complex than it should be, 
     # due to Ruby version and platform character encoding differences
+    # In particular Windows always seems to read as IBM437 encoding
     if RUBY_VERSION < "1.9"
       text.gsub!(/\302\240/,' ') 
     else
-      if text.encoding.name == "IBM437"
-        text.force_encoding("UTF-8")  # Windows Ruby seems to always read in IBM437
+      # Character encoding plan: assume UTF-8, reinterpret
+      # If that doens't give us a valid string, then re-encode as UTF-8, throwing out invalid chars
+      if text.encoding.name != "UTF-8"  
+        cleaned = text.dup.force_encoding('UTF-8')
+        if !cleaned.valid_encoding?
+          text.encode!( 'UTF-8', invalid: :replace, undef: :replace )
+        else
+          text = cleaned
+        end     
       end
       text.gsub!("\u00A0", " ") # turn non-breaking spaces (UTF-8) into spaces 
     end
