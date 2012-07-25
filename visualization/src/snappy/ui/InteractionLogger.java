@@ -43,7 +43,7 @@ public class InteractionLogger {
 			   csv.writeNext(line);
 			   
 			   // grrr.. windows never seems to make it out of the loop in MainHolder, to where we close the log, so flush, baby, flush!
-			   if (isWindows()) {
+			   if (true) { // (isWindows()) {
 				   try {
 					   csv.flush();
 				   } catch (IOException e) {
