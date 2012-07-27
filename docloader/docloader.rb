@@ -58,9 +58,9 @@ end
 # extract text from specified file
 # Format dependent
 def extractTextFromFile(filename)
-	if File.extname == ".pdf"
+	if File.extname(filename) == ".pdf"
 		extractTextFromPDF(filename)
-	elsif File.extname == ".txt"
+	elsif File.extname(filename) == ".txt"
 		File.open(filename).read
 	end
 end
@@ -110,7 +110,7 @@ def processFile(filename, options)
 	
 	if options.overviewCSVfilename
 		# extract file text, append to Overview csv
-		text = extractTextFromPDF(filename)
+		text = extractTextFromFile(filename)
 		#puts text
 		options.csv << [text, digest, url]
 	end
