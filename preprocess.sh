@@ -1,7 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR=`dirname $0`
 RUBYDIR=$BASEDIR/preprocessing
+
+# install a gem if not already there
+function install_gem {
+	count=`gem list | grep $1 | wc -l`
+	if [ $count -ne 1 ]; then
+		gem install $1
+	fi
+}
+
+# install fastercsv for Ruby 1.8 
+count=`ruby -v | grep "ruby 1.9" | wc -l`
+if [ $count -ne 1 ]; then
+	intall_gem fastercsv
+fi
 
 # Look for commonly occurring co-locations, and extract the top candidates. 
 # TODO: threshold for acceptance is hard-coded 
@@ -19,4 +33,4 @@ ruby -I $RUBYDIR $RUBYDIR/make-featurenames.rb $1-termlist.csv $1-featurenames.c
 
 # Finally, extract URLs/document text for the Overview doc viewer window 
 ruby -I $RUBYDIR $RUBYDIR/make-urls.rb $1.csv $1-urls.csv
- 
+

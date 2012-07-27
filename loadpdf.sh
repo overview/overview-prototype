@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR=`dirname $0`
 RUBYDIR=$BASEDIR/docloader
@@ -13,12 +13,16 @@ then
     exit 
 fi
 
-# do bundle install to download required gemfiles, if not already done
-if [ ! -f $RUBYDIR/Gemfile.lock ]; then
-	pushd $RUBYDIR
-	bundle install
-	popd
-fi
+# install a gem if not already there
+function install_gem {
+	count=`gem list | grep $1 | wc -l`
+	if [ $count -ne 1 ]; then
+		gem install $1
+	fi
+}
+
+install_gem json_pure
+install_gem rest-client
 
 # find pdf files in a directory, extract the text, convert to CSV
 ruby -I $RUBYDIR $RUBYDIR/docloader.rb $1 -o $2.csv -r
