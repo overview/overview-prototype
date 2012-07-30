@@ -13,7 +13,6 @@ require 'rest_client'
 require 'ostruct'
 require 'optparse'
 require 'uri'
-require 'Digest'
 require 'csv'
 require 'json'
 
