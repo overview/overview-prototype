@@ -1,13 +1,17 @@
-require 'set'
-#require 'stemmer'
-
-#class String
-#  include Stemmable
-#end
-
 # Overview prototype lexical analysis
 # Terms text to a term list, including various cleanups
-# This version implements bigram detection (from an externally provided vocabulary) and Porter stemming
+# This version implements bigram detection (from an externally provided vocabulary) 
+
+if RUBY_VERSION < "1.9"
+  require "rubygems"
+  require "faster_csv"
+  CSV = FCSV
+else
+  require "csv"
+end
+
+require 'set'
+
 class Lexer
   attr_accessor :bigrams
   attr_accessor :stopwords
@@ -19,6 +23,80 @@ class Lexer
    @stem_terms = false     # stem by default
   end
   
+  def downcase_en(s)
+    s.downcase
+  end
+
+  def strippunct_en(s)
+    s.tr!('"()[]:,',' ')   # turn certain punctation into spaces
+    s.gsub(/[^0-9a-z\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
+  end
+
+  def downcase_es(s)
+    norm = s.downcase
+#    norm.tr!("ÁÉÍÓÚ", "áéíóú")
+    norm.tr!("\u00c1\u00c9\u00cd\u00d3\u00da", "\u00e1\u00e9\u00ed\u00f3\u00fa")
+#    norm.tr!('ÄËÏÖÜ', 'äëïöü')
+    norm.tr!("\u00c4\u00cb\u00cf\u00d6\u00dc", "\u00e4\u00eb\u00ef\u00f6\u00fc")
+#    norm.tr!('Ñ','ñ')
+    norm.tr!("\u00d1","\u00f1")
+    norm
+  end
+
+  def strippunct_es(s)
+    s.tr!('"()[]:,',' ')   # turn certain punctation into spaces
+    s.gsub(/[^0-9a-z\u00e1\u00e9\u00ed\u00f3\u00fa\u00e4\u00eb\u00ef\u00f6\u00fc\u00f1\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
+  end
+
+  def downcase_l(s, l)
+    if l == "en"
+      downcase_en(s)
+    else
+      downcase_es(s)
+    end
+  end
+
+  def strippunct_l(s, l)
+    if l == "en"
+      strippunct_en(s)
+    else
+      strippunct_es(s)
+    end
+  end
+
+  def detect_language(text)
+    stopwords_en = read_stopwords_file(File.dirname(__FILE__) + "/stopwords-en.csv")
+    terms_en = downcase_en(text).split(' ')
+    count_en = terms_en.count { |x| stopwords_en.include?(x) }
+
+    stopwords_es = read_stopwords_file(File.dirname(__FILE__) + "/stopwords-es.csv")
+    terms_es = downcase_es(text).split(' ')
+    count_es = terms_es.count { |x| stopwords_es.include?(x) }
+
+#    terms_es.each { |x| puts x + ", included=" + stopwords_es.include?(x).to_s }
+    puts "English stopwords found: #{count_en}, Spanish stopwords found: #{count_es}"
+
+    if count_en > count_es
+      "en"
+    else
+      "es"
+    end
+  end
+
+  def detect_csv_language(filename)
+    text = ""
+
+    CSV.foreach(filename, :headers=>true) do |row|
+      text += " " + row['text']
+      if text.length > 10000 
+        break
+      end
+    end
+
+    detect_language(text)
+  end
+
+
   # Load a list of birgrams from a CSV. Ignore the likelihood values -- use everything in the file
   # The bigrams are assumed lowercase and cleaned of undesirable punctuation
   # Turns spaces into underscores, to make bigrams a little clearer when many terms are printed 
@@ -37,11 +115,17 @@ class Lexer
   end
   
   # Load a list of stopwords, which are removed from the token stream by make_terms
-  def load_stopwords(filename)
+  def read_stopwords_file(filename)
+    stopwords = []
     CSV.foreach(filename) do |row|
-      @stopwords << row[0]
+      stopwords << row[0]
     end
-    puts "loaded " + stopwords.length.to_s + " stopwords."
+    stopwords
+    # puts "loaded " + stopwords.length.to_s + " stopwords."
+  end
+
+  def load_stopwords(lang)
+    @stopwords = read_stopwords_file(File.dirname(__FILE__) + "/stopwords-" + lang + ".csv")
   end
   
   # Remove certain types of terms. Applied only to unigrams. At the moment:
@@ -67,20 +151,11 @@ class Lexer
   # E.g. if [1 2] and [2 3] are bigrams, then [1 2 3] => [1 2],[2 3] 
   # Stem unigrams
   
-  def make_terms(text)
+  def make_terms(text, lang)
     if !text
       return []
     end
-    
-    text.downcase!
-
-    # cleanups on Cable and Warlogs data
-    text.gsub!("&amp;","")  # data has some HTML apostrophe mess, clean it up
-    text.gsub!("amp;","")
-    text.gsub!("apos;","'")
-    text.gsub!("''","'")    # double '' to single '
-    text.gsub!(/<[^>]*>/, '') # strip things inside HTML tags
-
+  
     # Turn non-breaking spaces into spaces. This is more complex than it should be, 
     # due to Ruby version and platform character encoding differences
     # In particular Windows always seems to read as IBM437 encoding
@@ -100,9 +175,18 @@ class Lexer
       text.gsub!("\u00A0", " ") # turn non-breaking spaces (UTF-8) into spaces 
     end
 
+    text = downcase_l(text,lang)
+
+    # cleanups on Cable and Warlogs data
+    text.gsub!("&amp;","")  # data has some HTML apostrophe mess, clean it up
+    text.gsub!("amp;","")
+    text.gsub!("apos;","'")
+    text.gsub!("''","'")    # double '' to single '
+    text.gsub!(/<[^>]*>/, '') # strip things inside HTML tags
+
     # allow only a small set of characters
     text.tr!('"()[]:,',' ')   # turn certain punctation into spaces
-    text.gsub!(/[^0-9a-z\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
+    text = strippunct_l(text, lang)  # remove anything not in the language charset (helps with OCR junk)
     text.gsub!(/\s\s*/, ' ')  # collapse runs of spaces into single spaces
 
     terms = text.split(' ')

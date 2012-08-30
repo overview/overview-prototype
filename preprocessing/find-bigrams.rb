@@ -63,7 +63,8 @@ puts "Finding common bigrams..."
 
 # fire up the lexer and fill it with stopwords, turn off stemming
 lexer = Lexer.new
-lexer.load_stopwords(File.dirname(__FILE__) + "/stopwords.csv")
+lang = lexer.detect_csv_language(infile_name)
+lexer.load_stopwords(lang)
 lexer.stem_terms = false
 
 # Use hashes to store unigram and bigram counts. Default to 0 on creation
@@ -73,15 +74,15 @@ total_terms = 0
 
 # Read each row of the input file, parse the text field into unigrams and bigrams
 docs_read = 0
-csv_out = CSV.open(ARGV[1],"w")
+csv_out = CSV.open(outfile_name,"w")
 
-CSV.foreach(ARGV[0], :headers=>true) do |row|
+CSV.foreach(infile_name, :headers=>true) do |row|
   
   text = row['text']
   docs_read+=1
 
   # split and clean the text into a term list
-  terms = lexer.make_terms(text)
+  terms = lexer.make_terms(text, lang)
   total_terms += terms.length
   
   # count unigrams and bigrams

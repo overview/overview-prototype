@@ -38,14 +38,15 @@ docs_with_non_culled_terms = 0
 
 # load bigrams
 lexer = Lexer.new
+lang = lexer.detect_csv_language(infile_name)
 lexer.load_bigrams(bigramsfile_name)
 puts "Loaded " + lexer.bigram_count.to_s + " bigrams"
-lexer.load_stopwords(File.dirname(__FILE__) + "/stopwords.csv")
+lexer.load_stopwords(lang)
 
 # Read each row of the input file, parse the text field into terms, add the doc to the TFIDF database
 tfidf = Tf_Idf_CSV.new
 
-CSV.foreach(ARGV[0], :headers=>true) do |row|
+CSV.foreach(infile_name, :headers=>true) do |row|
   
   text = row['text']
   if row.include?('uid')
@@ -68,7 +69,7 @@ CSV.foreach(ARGV[0], :headers=>true) do |row|
     unique_docs_read += 1
   
     # split and clean the text into a term list
-    terms = lexer.make_terms(text)
+    terms = lexer.make_terms(text, lang)
   
     # Calculate term frequency / update doc frequency. Use doc unique ID as a key
     if terms.length > 0 
