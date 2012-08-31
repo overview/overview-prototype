@@ -14,7 +14,7 @@ function install_gem {
 # install fastercsv for Ruby 1.8 
 count=`ruby -v | grep "ruby 1.9" | wc -l`
 if [ $count -ne 1 ]; then
-	intall_gem fastercsv
+	install_gem fastercsv
 fi
 
 # Look for commonly occurring co-locations, and extract the top candidates. 
