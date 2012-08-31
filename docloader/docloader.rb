@@ -103,15 +103,20 @@ def processFile(filename, options)
 		#puts url
 		digest = Digest::MD5.hexdigest(url)
 	else
-		url = "file://" + File.expand_path(filename)
+		if File.extname(filename) != ".txt"
+			url = "file://" + File.expand_path(filename)
+		end
 		digest = Digest::MD5.hexdigest(filename)
 	end
 	
 	if options.overviewCSVfilename
 		# extract file text, append to Overview csv
 		text = extractTextFromFile(filename)
-		#puts text
-		options.csv << [text, digest, url]
+		if url != nil
+			options.csv << [text, digest, url]
+		else
+			options.csv << [text, digest]
+		end
 	end
 end
 

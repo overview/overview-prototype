@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -453,9 +455,8 @@ public class Snappy extends JFrame implements ChangeListener {
 		if( nz_feature_label_filename != "" ) {
 			System.out.print("Loading Nonzero Features...");
 			try {
-				edge_feature_list = FeatureList.readFeatureList(new FileReader(nz_feature_label_filename));
-			} catch (FileNotFoundException e) {
-
+				edge_feature_list = FeatureList.readFeatureList(new InputStreamReader(new FileInputStream(nz_feature_label_filename), "UTF8"));
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			System.out.println("done.");

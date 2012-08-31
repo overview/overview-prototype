@@ -6,7 +6,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +41,7 @@ import java.awt.Desktop;
  */
 public class HtmlDispatch implements KeyListener, ListSelectionListener {
 
-    private JWebBrowser m_browser = null;
+  private JWebBrowser m_browser = null;
 	private JList m_list = null;
 	private NZData m_doclist = null;
 	private Runtime m_runtime = null;
@@ -77,7 +79,7 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
 		try {
 
 			// Set up CSV reader with no escape character (instead of \), as Ruby CSV files and RFC 4180 don't use it, and \"" was being incorrectly read.
-			CSVReader reader = new CSVReader(new FileReader(text_filename),
+			CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(text_filename), "UTF8"),
 											 CSVParser.DEFAULT_SEPARATOR, CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.NULL_CHARACTER);
 
 			// load headers, find 'uid' col, and 'url' colu, or 'text' col if no URL
@@ -211,7 +213,7 @@ public class HtmlDispatch implements KeyListener, ListSelectionListener {
     		    	m_browser.navigate(item_string); // not a DocumentCloud URL, just navigate as usual
     		    }
     		} else {
-    			m_browser.setHTMLContent(item_string);
+    		  m_browser.setHTMLContent("<pre>" + item_string + "</pre>");
     		}
 		}		
 	}
