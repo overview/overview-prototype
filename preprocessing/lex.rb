@@ -87,7 +87,9 @@ class Lexer
     text = ""
 
     CSV.foreach(filename, :headers=>true) do |row|
-      text += " " + row['text']
+      if row['text'] != nil
+        text += " " + row['text']
+      end
       if text.length > 10000 
         break
       end
