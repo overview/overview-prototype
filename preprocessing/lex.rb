@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Overview prototype lexical analysis
 # Terms text to a term list, including various cleanups
 # This version implements bigram detection (from an externally provided vocabulary) 
@@ -12,6 +14,32 @@ end
 
 require 'set'
 
+ # Language processing primitives 
+def downcase_en(s)
+  s.downcase
+end
+
+def strippunct_en(s)
+  s.tr!('"()[]:,',' ')   # turn certain punctation into spaces
+  s.gsub(/[^0-9a-z\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
+end
+
+def downcase_es(s)
+  norm = s.downcase
+  norm.tr!("ÁÉÍÓÚ", "áéíóú")
+#    norm.tr!("\u00c1\u00c9\u00cd\u00d3\u00da", "\u00e1\u00e9\u00ed\u00f3\u00fa")
+  norm.tr!('ÄËÏÖÜ', 'äëïöü')
+#    norm.tr!("\u00c4\u00cb\u00cf\u00d6\u00dc", "\u00e4\u00eb\u00ef\u00f6\u00fc")
+  norm.tr!('Ñ','ñ')
+#    norm.tr!("\u00d1","\u00f1")
+  norm
+end
+
+def strippunct_es(s)
+  s.tr!('"()[]:,',' ')   # turn certain punctation into spaces
+  s.gsub(/[^0-9a-záéíóúäëïöüñ\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
+end
+
 class Lexer
   attr_accessor :bigrams
   attr_accessor :stopwords
@@ -22,56 +50,38 @@ class Lexer
    @stopwords = Set.new
    @stem_terms = false     # stem by default
   end
-  
-  def downcase_en(s)
-    s.downcase
-  end
 
-  def strippunct_en(s)
-    s.tr!('"()[]:,',' ')   # turn certain punctation into spaces
-    s.gsub(/[^0-9a-z\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
-  end
 
-  def downcase_es(s)
-    norm = s.downcase
-#    norm.tr!("ÁÉÍÓÚ", "áéíóú")
-    norm.tr!("\u00c1\u00c9\u00cd\u00d3\u00da", "\u00e1\u00e9\u00ed\u00f3\u00fa")
-#    norm.tr!('ÄËÏÖÜ', 'äëïöü')
-    norm.tr!("\u00c4\u00cb\u00cf\u00d6\u00dc", "\u00e4\u00eb\u00ef\u00f6\u00fc")
-#    norm.tr!('Ñ','ñ')
-    norm.tr!("\u00d1","\u00f1")
-    norm
-  end
 
-  def strippunct_es(s)
-    s.tr!('"()[]:,',' ')   # turn certain punctation into spaces
-    s.gsub(/[^0-9a-z\u00e1\u00e9\u00ed\u00f3\u00fa\u00e4\u00eb\u00ef\u00f6\u00fc\u00f1\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
-  end
+  @@stopword_files = { "en"=>"/stopwords-en.csv",
+                     "es"=>"/stopwords-es.csv",
+                     "ar"=>"/stopwords-ar.csv" }
+
+  @@downcase_fns = {  "en" => Proc.new { |s| downcase_en(s) },
+                    "es" => proc { |s| downcase_es(s) },
+                    "ar" => proc { |s| downcase_en(s) } }
+
+  @@strippunct_fns = {"en" => proc { |s| strippunct_en(s) },
+                    "es" => proc { |s| strippunct_es(s) },
+                    "ar" => proc { |s| strippunct_en(s) } }
 
   def downcase_l(s, l)
-    if l == "en"
-      downcase_en(s)
-    else
-      downcase_es(s)
-    end
+    @@downcase_fns[l].call(s)
   end
 
   def strippunct_l(s, l)
-    if l == "en"
-      strippunct_en(s)
-    else
-      strippunct_es(s)
-    end
+    @@strippunct_fns[l].call(s)
+  end
+
+  def count_stopwords(text, l)
+    stopwords = read_stopwords_file(File.dirname(__FILE__) + @@stopword_files[l])
+    terms = downcase_l(text, l).split(' ')
+    terms.count { |x| stopwords.include?(x) }
   end
 
   def detect_language(text)
-    stopwords_en = read_stopwords_file(File.dirname(__FILE__) + "/stopwords-en.csv")
-    terms_en = downcase_en(text).split(' ')
-    count_en = terms_en.count { |x| stopwords_en.include?(x) }
-
-    stopwords_es = read_stopwords_file(File.dirname(__FILE__) + "/stopwords-es.csv")
-    terms_es = downcase_es(text).split(' ')
-    count_es = terms_es.count { |x| stopwords_es.include?(x) }
+    count_en = count_stopwords(text,"en")
+    count_es = count_stopwords(text,"es")
 
 #    terms_es.each { |x| puts x + ", included=" + stopwords_es.include?(x).to_s }
     puts "English stopwords found: #{count_en}, Spanish stopwords found: #{count_es}"
