@@ -218,7 +218,7 @@ class Lexer
     text.gsub!(/\s\s*/, ' ')  # collapse runs of spaces into single spaces
 
     terms = text.split(' ')
-    terms.map!{ |t| t.sub(/^[^a-z0-9]+/,'').sub(/[^a-z0-9]+$/,'') } # remove leading/trailing punctuation
+#    terms.map!{ |t| t.sub(/^[^a-z0-9]+/,'').sub(/[^a-z0-9]+$/,'') } # remove leading/trailing punctuation
     
     # Now scan through the term list and spit out ungrams, bigrams
     termsout = []
