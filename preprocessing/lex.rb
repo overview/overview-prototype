@@ -13,6 +13,8 @@ else
 end
 
 require 'set'
+require "unicode_utils/downcase"
+require "unicode_utils/char_type"
 
  # Language processing primitives 
 def downcase_en(s)
@@ -26,18 +28,29 @@ end
 
 def downcase_es(s)
   norm = s.downcase
-  norm.tr!("ÁÉÍÓÚ", "áéíóú")
-#    norm.tr!("\u00c1\u00c9\u00cd\u00d3\u00da", "\u00e1\u00e9\u00ed\u00f3\u00fa")
-  norm.tr!('ÄËÏÖÜ', 'äëïöü')
-#    norm.tr!("\u00c4\u00cb\u00cf\u00d6\u00dc", "\u00e4\u00eb\u00ef\u00f6\u00fc")
-  norm.tr!('Ñ','ñ')
-#    norm.tr!("\u00d1","\u00f1")
+  norm.tr!("ÁÉÍÓÚÄËÏÖÜÑ", "áéíóúäëïöüñ")
   norm
 end
 
 def strippunct_es(s)
   s.tr!('"()[]:,',' ')   # turn certain punctation into spaces
   s.gsub(/[^0-9a-záéíóúäëïöüñ\'\-\s]/, '') # remove anything not alphanum, dash, apos, space (helps with OCR junk)
+end
+
+def downcase_uni(s)
+  UnicodeUtils.downcase(s)
+end
+
+def notpunct_uni(c)
+  (UnicodeUtils.char_type(c) == :Letter) ||
+  (UnicodeUtils.char_type(c) == :Number) ||
+  c == " " || c == "\t" || c == "\n"
+end
+
+def strippunct_uni(s)
+  s2 = ""
+  s.each_char { |c| if notpunct_uni(c) then s2+=c end }
+  s2
 end
 
 class Lexer
@@ -52,18 +65,19 @@ class Lexer
   end
 
 
-
   @@stopword_files = { "en"=>"/stopwords-en.csv",
-                     "es"=>"/stopwords-es.csv",
-                     "ar"=>"/stopwords-ar.csv" }
+                      "es"=>"/stopwords-es.csv",
+                      "ar"=>"/stopwords-ar.csv" }
 
   @@downcase_fns = {  "en" => Proc.new { |s| downcase_en(s) },
-                    "es" => proc { |s| downcase_es(s) },
-                    "ar" => proc { |s| downcase_en(s) } }
+                      "es" => proc { |s| downcase_es(s) },
+                      "ar" => proc { |s| downcase_uni(s) },
+                      "un" => proc { |s| downcase_uni(s) } }
 
   @@strippunct_fns = {"en" => proc { |s| strippunct_en(s) },
-                    "es" => proc { |s| strippunct_es(s) },
-                    "ar" => proc { |s| strippunct_en(s) } }
+                      "es" => proc { |s| strippunct_es(s) },
+                      "ar" => proc { |s| strippunct_uni(s) },
+                      "un" => proc { |s| strippunct_uni(s) } }
 
   def downcase_l(s, l)
     @@downcase_fns[l].call(s)
@@ -80,17 +94,19 @@ class Lexer
   end
 
   def detect_language(text)
-    count_en = count_stopwords(text,"en")
-    count_es = count_stopwords(text,"es")
-
-#    terms_es.each { |x| puts x + ", included=" + stopwords_es.include?(x).to_s }
-    puts "English stopwords found: #{count_en}, Spanish stopwords found: #{count_es}"
-
-    if count_en > count_es
-      "en"
-    else
-      "es"
+    bestcnt = 5
+    bestlang = "un"                         # assume "un" = generic unicode if lang not clear
+    @@stopword_files.each do |lang, file|
+      cnt = count_stopwords(text,lang)
+      if cnt > bestcnt
+        bestcnt = cnt
+        bestlang = lang
+      end
     end
+
+    puts "Detected language #{bestlang}, found #{bestcnt} stopwords."
+
+    bestlang
   end
 
   def detect_csv_language(filename)
