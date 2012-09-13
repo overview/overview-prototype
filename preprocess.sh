@@ -17,6 +17,8 @@ if [ $count -ne 1 ]; then
 	install_gem fastercsv
 fi
 
+install_gem unicode_utils
+
 # Look for commonly occurring co-locations, and extract the top candidates. 
 # TODO: threshold for acceptance is hard-coded 
 ruby -I $RUBYDIR $RUBYDIR/find-bigrams.rb $1.csv $1-bigrams.csv

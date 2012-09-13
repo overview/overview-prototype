@@ -23,6 +23,7 @@ function install_gem {
 
 install_gem json_pure
 install_gem rest-client
+install_gem unicode_utils
 
 # find pdf files in a directory, extract the text, convert to CSV
 ruby -I $RUBYDIR $RUBYDIR/docloader.rb $1 -o $2.csv -r

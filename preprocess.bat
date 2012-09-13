@@ -4,6 +4,11 @@ set RUBYDIR=%BASEDIR%preprocessing
 
 echo Running from %RUBYDIR%
 
+CALL gem list | find "unicode_utils" > nul
+IF NOT ERRORLEVEL 1 GOTO UNICODEINSTALLED
+  CALL gem install unicode_utils
+:UNICODEINSTALLED
+
 REM Look for commonly occurring co-locations, and extract the top candidates. 
 REM TODO: threshold for acceptance is hard-coded 
 ruby -I %RUBYDIR% %RUBYDIR%\find-bigrams.rb %1.csv %1-bigrams.csv

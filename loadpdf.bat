@@ -24,6 +24,11 @@ IF NOT ERRORLEVEL 1 GOTO RESTINSTALLED
   CALL gem install rest-client
 :RESTINSTALLED
 
+CALL gem list | find "unicode_utils" > nul
+IF NOT ERRORLEVEL 1 GOTO UNICODEINSTALLED
+  CALL gem install unicode_utils
+:UNICODEINSTALLED
+
 REM find pdf files in a directory, extract the text, convert to CSV
 CALL ruby -I %RUBYDIR% %RUBYDIR%\docloader.rb %1 -o %2.csv -r
 
