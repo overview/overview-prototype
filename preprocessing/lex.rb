@@ -88,7 +88,8 @@ class Lexer
 
     CSV.foreach(filename, :headers=>true) do |row|
       if row['text'] != nil
-        text += " " + row['text']
+        rowtext = clean_text(row['text'])
+        text += " " + rowtext
       end
       if text.length > 10000 
         break
@@ -147,7 +148,26 @@ class Lexer
       end
     end
   end
-    
+  
+  # Force the text to valid UTF-8 encoding. 
+  # Assumes source is UTF-8, ignores stated encoding (which tends to be wrong on Windows)
+  def clean_text(text)
+    if RUBY_VERSION >= "1.9"
+
+      # First, force to UTF-8 encoding
+      if text.encoding.name != "UTF-8"  
+        text = text.force_encoding('UTF-8')
+      end
+
+      # If we still don't have a valid string, re-encode
+      if !text.valid_encoding?
+        text = text.encode('UTF-16', invalid: :replace, undef: :replace).encode('UTF-8')
+      end
+
+    end
+    text
+  end
+
   # Given a string, returns a list of terms
   # Find bigrams greedily and do not output compontent terms, but allow overlaps. 
   # E.g. if [1 2] and [2 3] are bigrams, then [1 2 3] => [1 2],[2 3] 
@@ -158,22 +178,14 @@ class Lexer
       return []
     end
   
+    text = clean_text(text)
+
     # Turn non-breaking spaces into spaces. This is more complex than it should be, 
     # due to Ruby version and platform character encoding differences
     # In particular Windows always seems to read as IBM437 encoding
     if RUBY_VERSION < "1.9"
       text.gsub!(/\302\240/,' ') 
     else
-      # Character encoding plan: assume UTF-8, reinterpret
-      # If that doens't give us a valid string, then re-encode as UTF-8, throwing out invalid chars
-      if text.encoding.name != "UTF-8"  
-        cleaned = text.dup.force_encoding('UTF-8')
-        if !cleaned.valid_encoding?
-          text.encode!( 'UTF-8', invalid: :replace, undef: :replace )
-        else
-          text = cleaned
-        end     
-      end
       text.gsub!("\u00A0", " ") # turn non-breaking spaces (UTF-8) into spaces 
     end
 
