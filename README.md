@@ -1,9 +1,9 @@
 # Overview document set visualization system -- prototype 
 
-Welcome! This is a prototype, pre-alpha distribution of the Overview open source document set visualization and exploration tool. *We in the process of rewriting this entire system as a web application, no installation needed.* Until then...
+Welcome! This is a prototype, pre-alpha distribution of the Overview open source document set visualization and exploration tool. *As of 2013 this system is no longer maintained. See the production https://overviewdocs.com instead.*
 
 # Getting started
-See http://overview.ap.org/blog/2012/02/getting-started-with-the-overview-prototype/
+See https://blog.overviewdocs.com/2012/02/25/getting-started-with-the-overview-prototype/
 
 The quick version:
 
@@ -19,7 +19,7 @@ The quick version:
 * Linux: replace visualization/lib/swt.jar with the appropriate version for your operating system.
 
 # Loading your own documents
-Again, see http://overview.ap.org/blog/2012/02/getting-started-with-the-overview-prototype/
+Again, see https://blog.overviewdocs.com/2012/02/25/getting-started-with-the-overview-prototype/
 
 * If you have a folder full of .pdf or .txt files, use the ```loadpdf.sh``` script
 * If you want to upload that folder to DocumentCloud first, use the ```dcupload.sh`` script
@@ -66,6 +66,5 @@ GPLv3
 
 need help? ask!
 
-http://overview.ap.org/get-involved/
 https://twitter.com/overviewproject
 
